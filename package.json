@@ -1,0 +1,22 @@
+{
+    "name": "relax",
+    "version": "1.0.0",
+    "description": "前端mvc框架",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "format": "biome format --write .",
+        "lint": "biome lint .",
+        "check": "biome check --write .",
+        "organize": "biome check --write --apply-unsafe .",
+        "build": "tsc --build",
+        "build:core": "tsc --build packages/core",
+        "build:react": "tsc --build packages/relax-react",
+        "clean": "tsc --build --clean"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@biomejs/biome": "^2.0.6"
+    }
+}
