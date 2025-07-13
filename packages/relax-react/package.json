@@ -1,0 +1,22 @@
+{
+    "name": "@relax/react",
+    "version": "0.0.1",
+    "description": "relax react integration",
+    "main": "src/index.ts",
+    "types": "src/index.ts",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": ["react", "mvc", "framework"],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@relax/core": "workspace:*"
+    },
+    "peerDependencies": {
+        "react": "^18.0.0"
+    },
+    "devDependencies": {
+        "@types/react": "^18.0.0"
+    }
+} 
