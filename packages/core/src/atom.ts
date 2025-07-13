@@ -1,18 +1,36 @@
-import { get, RELAX_NODES, RelaxValueNode, set, type RelaxValue } from './state';
+/**
+ * Atomic state management for Relax framework
+ * Provides the foundation for creating and managing atomic state units
+ */
 
+import { RELAX_NODES, RelaxValueNode, set, type RelaxValue } from './state';
+
+/**
+ * Interface for atomic state with type information
+ * @template T - The type of the state value
+ * @template R - The type of the update parameter (defaults to T)
+ */
 export interface RelaxState<T, _R = T> extends RelaxValue<T> {
   readonly type: 'atom';
 }
 
+/**
+ * Internal node class for atomic state management
+ * @template T - The type of the state value
+ * @template R - The type of the update parameter
+ */
 class RelaxStateNode<T, R = T> extends RelaxValueNode<T> implements RelaxState<T, R> {
   readonly type: 'atom';
   updateFn?: (params: R) => T | Promise<T>;
+
   constructor(
     public value: T,
     public defaultValue?: T
   ) {
     super('atom', value);
     this.type = 'atom';
+
+    // If value is a function, treat it as an update function
     if (typeof value === 'function') {
       this.updateFn = value as (params: R) => T | Promise<T>;
     } else {
@@ -21,6 +39,14 @@ class RelaxStateNode<T, R = T> extends RelaxValueNode<T> implements RelaxState<T
   }
 }
 
+/**
+ * Creates a new atomic state
+ * @template T - The type of the state value
+ * @template R - The type of the update parameter
+ * @param value - Initial value or update function
+ * @param defaultValue - Default value (used when value is a function)
+ * @returns A RelaxState object representing the atomic state
+ */
 export const atom = <T, R = T>(
   value: T | ((params: R) => T | Promise<T>),
   defaultValue?: T
@@ -32,25 +58,23 @@ export const atom = <T, R = T>(
   };
 };
 
+/**
+ * Updates an atomic state with a new value
+ * @template T - The type of the state value
+ * @template R - The type of the update parameter
+ * @param state - The atomic state to update
+ * @param value - The new value or parameter for the update function
+ */
 export const update = async <T, R>(state: RelaxState<T, R>, value: R) => {
   const atom: RelaxStateNode<T, R> | undefined = RELAX_NODES.get(state.id) as RelaxStateNode<T, R>;
   if (!atom) {
     throw new Error(`Atom ${state.id} not found`);
   }
+
+  // If there's an update function, use it; otherwise, use the value directly
   const newValue = atom.updateFn ? await atom.updateFn(value) : value;
   set(state, newValue as T);
 };
 
-// 如果是全局状态，则需要一个全局状态管理器.那么ssr的场景怎么解决状态混淆以及内存泄漏的问题
-
-const a = atom(1);
-export const b = get(a);
-
-const c = atom(
-  (params: string) =>
-    new Promise<number>((resolve) => setTimeout(() => resolve(Number(params) + 1), 1000))
-);
-export const d = get(c);
-
-update(a, 2);
-update(c, '1');
+// TODO: For global state, we need a global state manager.
+// How to solve state confusion and memory leaks in SSR scenarios?
