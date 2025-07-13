@@ -11,7 +11,8 @@
         "build": "tsc --build",
         "build:core": "tsc --build packages/core",
         "build:react": "tsc --build packages/relax-react",
-        "clean": "tsc --build --clean"
+        "clean": "tsc --build --clean",
+        "demos": "pnpm --filter @relax/demos run dev"
     },
     "keywords": [],
     "author": "",
