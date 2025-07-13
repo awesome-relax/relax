@@ -1,50 +1,83 @@
+import { createId } from './id';
+
 export const store = (): string => {};
 export const restore = (id?: string) => {};
 
-export class State<T> {
+export interface RelaxValue<_T> {
   id: string;
-  value?: T;
 }
-export const StateMap = new Map<string, State<any>>();
-export const get = <T>(state: State<T>): T | undefined => {
-  return StateMap.get(state.id)?.value;
+
+export class RelaxValueNode<T> implements RelaxValue<T> {
+  readonly id: string;
+  private effects: ((state: RelaxValue<T>) => void)[] = [];
+  constructor(
+    type: string,
+    public value?: T
+  ) {
+    this.id = createId(type);
+    RELAX_NODES.set(this.id, this);
+  }
+  dispose() {
+    this.effects = [];
+    RELAX_NODES.delete(this.id);
+  }
+  effect(fn: (state: RelaxValue<T>) => void) {
+    this.effects.push(fn);
+    return () => this.removeEffect(fn);
+  }
+  removeEffect(fn: (state: RelaxValue<T>) => void) {
+    this.effects.splice(this.effects.indexOf(fn), 1);
+  }
+  dispatchEffect() {
+    this.effects.forEach((fn) => fn(this));
+  }
+}
+
+export const RELAX_NODES = new Map<string, RelaxValueNode<any>>();
+export const get = <T>(state: RelaxValue<T>): T | undefined => {
+  return RELAX_NODES.get(state.id)?.value;
 };
 
 export type RelaxStateGetter = typeof get;
 
-export const set = <T>(state: State<T>, value: T) => {
-  const relaxState = StateMap.get(state.id) as State<T>;
-  if (relaxState) {
-    relaxState.value = value;
+export const set = <T>(state: RelaxValue<T>, value: T) => {
+  const relaxNode = RELAX_NODES.get(state.id) as RelaxValueNode<T>;
+  if (relaxNode) {
+    relaxNode.value = value;
     dispatchEffect(state);
   }
 };
 
-export const dispose = (state: State<any>) => {
-  StateMap.delete(state.id);
-  EFFECTS.delete(state.id);
+export const dispose = (state: RelaxValue<any>) => {
+  const relaxNode = RELAX_NODES.get(state.id) as RelaxValueNode<any>;
+  if (relaxNode) {
+    relaxNode.dispose();
+  }
 };
 // 副作用
-const EFFECTS = new Map<string, ((state: State<any>) => void)[]>();
-export const effect = (state: State<any>, fn: (state: State<any>) => void) => {
-  const currentEffects = EFFECTS.get(state.id) || [];
-
-  const remove = () => {
-    removeEffect(state, fn);
-  };
-  remove();
-  currentEffects.push(fn);
-  EFFECTS.set(state.id, currentEffects);
-  return remove;
+export const effect = (state: RelaxValue<any>, fn: (state: RelaxValue<any>) => void) => {
+  const relaxNode = RELAX_NODES.get(state.id) as RelaxValueNode<any>;
+  if (relaxNode) {
+    const remove = () => {
+      removeEffect(state, fn);
+    };
+    remove();
+    relaxNode.effect(fn);
+    return remove;
+  }
+  return () => {};
 };
 
-export const removeEffect = (state: State<any>, fn: (state: State<any>) => void) => {
-  const currentEffects = EFFECTS.get(state.id) || [];
-  currentEffects.splice(currentEffects.indexOf(fn), 1);
-  EFFECTS.set(state.id, currentEffects);
+export const removeEffect = (state: RelaxValue<any>, fn: (state: RelaxValue<any>) => void) => {
+  const relaxNode = RELAX_NODES.get(state.id) as RelaxValueNode<any>;
+  if (relaxNode) {
+    relaxNode.removeEffect(fn);
+  }
 };
 
-const dispatchEffect = (state: State<any>) => {
-  const currentEffects = EFFECTS.get(state.id) || [];
-  currentEffects.forEach((fn) => fn(state));
+const dispatchEffect = (state: RelaxValue<any>) => {
+  const relaxNode = RELAX_NODES.get(state.id) as RelaxValueNode<any>;
+  if (relaxNode) {
+    relaxNode.dispatchEffect();
+  }
 };

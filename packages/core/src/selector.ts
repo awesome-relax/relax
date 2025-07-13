@@ -1,43 +1,56 @@
-import { createId } from './id';
-import { effect, get, removeEffect, State, StateMap, type RelaxStateGetter } from './state';
+import {
+  effect,
+  get,
+  RelaxValueNode,
+  type RelaxValue,
+  removeEffect,
+  set,
+  type RelaxStateGetter,
+} from './state';
 
-class Selector<T> extends State<T> {
-  id: string;
+export interface SelectorValue<T> extends RelaxValue<T> {
+  readonly type: 'selector';
+}
+
+class SelectorNode<T> extends RelaxValueNode<T> implements SelectorValue<T> {
+  readonly type: 'selector' = 'selector';
   private computeFn: (getter: RelaxStateGetter) => T | Promise<T>;
-  private deps: State<any>[] = [];
-  private effect = () => this.update();
+
+  private deps: RelaxValue<any>[] = [];
+  private effectHandle = () => this.update();
   private getter: RelaxStateGetter = (state) => {
     const value = get(state);
     return value;
   };
   constructor(computeFn: (getter: RelaxStateGetter) => T | Promise<T>) {
-    super();
-    this.id = createId('selector');
+    super('selector');
     this.computeFn = computeFn;
     this.update();
   }
   async update() {
     this.prepare();
     const result = await this.computeFn(this.getter);
-    this.value = result;
+    set(this, result);
     this.afterUpdate();
   }
   private prepare() {
     this.deps.forEach((dep) => {
-      removeEffect(dep, this.effect);
+      removeEffect(dep, this.effectHandle);
     });
     this.deps = [];
   }
   private afterUpdate() {
     this.deps.forEach((dep) => {
-      effect(dep, this.effect);
+      effect(dep, this.effectHandle);
     });
   }
 }
-export const selector = <T>(computeFn: (getter: RelaxStateGetter) => T | Promise<T>) => {
-  const selector = new Selector(computeFn);
-  StateMap.set(selector.id, selector);
+export const selector = <T>(
+  computeFn: (getter: RelaxStateGetter) => T | Promise<T>
+): SelectorValue<T> => {
+  const selector = new SelectorNode(computeFn);
   return {
     id: selector.id,
+    type: 'selector',
   };
 };
