@@ -3,13 +3,14 @@ import { createId } from './id';
 export const store = (): string => {};
 export const restore = (id?: string) => {};
 
-export interface RelaxValue<_T> {
+export interface RelaxValue<T> {
   id: string;
+  value?: T;
 }
 
 export class RelaxValueNode<T> implements RelaxValue<T> {
   readonly id: string;
-  private effects: ((state: RelaxValue<T>) => void)[] = [];
+  private readonly effects: Set<(state: RelaxValue<T>) => void> = new Set();
   constructor(
     type: string,
     public value?: T
@@ -18,15 +19,16 @@ export class RelaxValueNode<T> implements RelaxValue<T> {
     RELAX_NODES.set(this.id, this);
   }
   dispose() {
-    this.effects = [];
+    this.effects.clear();
     RELAX_NODES.delete(this.id);
   }
   effect(fn: (state: RelaxValue<T>) => void) {
-    this.effects.push(fn);
-    return () => this.removeEffect(fn);
+    const remove = () => this.removeEffect(fn);
+    this.effects.add(fn);
+    return remove;
   }
   removeEffect(fn: (state: RelaxValue<T>) => void) {
-    this.effects.splice(this.effects.indexOf(fn), 1);
+    this.effects.delete(fn);
   }
   dispatchEffect() {
     this.effects.forEach((fn) => fn(this));
@@ -34,7 +36,7 @@ export class RelaxValueNode<T> implements RelaxValue<T> {
 }
 
 export const RELAX_NODES = new Map<string, RelaxValueNode<any>>();
-export const get = <T>(state: RelaxValue<T>): T | undefined => {
+export const get = <T extends RelaxValue<any>>(state: T): T['value'] | undefined => {
   return RELAX_NODES.get(state.id)?.value;
 };
 
@@ -61,7 +63,6 @@ export const effect = (state: RelaxValue<any>, fn: (state: RelaxValue<any>) => v
     const remove = () => {
       removeEffect(state, fn);
     };
-    remove();
     relaxNode.effect(fn);
     return remove;
   }

@@ -1,10 +1,10 @@
 import { get, RELAX_NODES, RelaxValueNode, set, type RelaxValue } from './state';
 
-export interface RelaxState<T, _R> extends RelaxValue<T> {
+export interface RelaxState<T, _R = T> extends RelaxValue<T> {
   readonly type: 'atom';
 }
 
-class RelaxStateNode<T, R> extends RelaxValueNode<T> implements RelaxState<T, R> {
+class RelaxStateNode<T, R = T> extends RelaxValueNode<T> implements RelaxState<T, R> {
   readonly type: 'atom';
   updateFn?: (params: R) => T | Promise<T>;
   constructor(
@@ -38,7 +38,7 @@ export const update = async <T, R>(state: RelaxState<T, R>, value: R) => {
     throw new Error(`Atom ${state.id} not found`);
   }
   const newValue = atom.updateFn ? await atom.updateFn(value) : value;
-  set(state, newValue);
+  set(state, newValue as T);
 };
 
 // 如果是全局状态，则需要一个全局状态管理器.那么ssr的场景怎么解决状态混淆以及内存泄漏的问题

@@ -16,10 +16,11 @@ class SelectorNode<T> extends RelaxValueNode<T> implements SelectorValue<T> {
   readonly type: 'selector' = 'selector';
   private computeFn: (getter: RelaxStateGetter) => T | Promise<T>;
 
-  private deps: RelaxValue<any>[] = [];
+  private deps: Set<RelaxValue<any>> = new Set();
   private effectHandle = () => this.update();
   private getter: RelaxStateGetter = (state) => {
     const value = get(state);
+    this.deps.add(state);
     return value;
   };
   constructor(computeFn: (getter: RelaxStateGetter) => T | Promise<T>) {
@@ -37,7 +38,7 @@ class SelectorNode<T> extends RelaxValueNode<T> implements SelectorValue<T> {
     this.deps.forEach((dep) => {
       removeEffect(dep, this.effectHandle);
     });
-    this.deps = [];
+    this.deps.clear();
   }
   private afterUpdate() {
     this.deps.forEach((dep) => {
