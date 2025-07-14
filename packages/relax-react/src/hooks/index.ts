@@ -25,6 +25,7 @@ export const useRelaxState = <T, R>(relaxState: RelaxState<T, R>) => {
   }, [relaxState]);
 
   // Return current value and a setter that updates the Relax state
+  // Use set directly for synchronous updates instead of async update
   return [state, (value: R) => update(relaxState, value)] as const;
 };
 

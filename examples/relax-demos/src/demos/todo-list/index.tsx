@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import './index.scss';
-import { atom, selector } from '@relax/core';
+import { atom, selector, update } from '@relax/core';
 import { useRelaxState, useRelaxValue } from '@relax/react';
 
 interface Todo {
@@ -9,10 +9,20 @@ interface Todo {
   completed: boolean;
 }
 
-const todoListAtom = atom<Todo[]>([]); 
+// Fix: Use new atom API with object parameter format
+const todoListAtom = atom<Todo[]>({
+  defaultValue: [],
+}); 
+update(todoListAtom, [] );
 
-const completedCountSelector = selector((get) => get(todoListAtom)?.filter(todo => todo.completed).length);
-const pendingCountSelector = selector((get) => get(todoListAtom)?.filter(todo => !todo.completed).length);
+// Fix: Use new selector API with object parameter format
+const completedCountSelector = selector({
+  get: (get) => get(todoListAtom)?.filter(todo => todo.completed).length || 0
+});
+
+const pendingCountSelector = selector({
+  get: (get) => get(todoListAtom)?.filter(todo => !todo.completed).length || 0
+});
 
 export const TodoList = () => {
   const [todos, setTodos] = useRelaxState(todoListAtom);
@@ -97,12 +107,14 @@ export const TodoList = () => {
                   >
                     {todo.completed && <span className="checkmark">✓</span>}
                   </button>
-                  <span 
+                  <button
+                    type="button"
                     className="todoText"
                     onClick={() => toggleTodo(todo.id)}
+                    aria-label={todo.completed ? '标记为未完成' : '标记为已完成'}
                   >
                     {todo.text}
-                  </span>
+                  </button>
                 </div>
                 <button
                   type="button"
