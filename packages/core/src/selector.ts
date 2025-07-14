@@ -1,11 +1,11 @@
 /**
- * Derived state management for Relax framework
- * Provides the ability to create computed states that automatically track dependencies
+ * Derived state management - Computed state system for Relax framework
+ * Provides ability to create computed states that automatically track dependencies and respond to changes
  */
 
 import {
   effect,
-  get,
+  get as getState,
   RelaxValueNode,
   type RelaxValue,
   removeEffect,
@@ -14,7 +14,7 @@ import {
 } from './state';
 
 /**
- * Interface for selector state with type information
+ * Selector state interface with type information
  * @template T - The type of the computed value
  */
 export interface SelectorValue<T> extends RelaxValue<T> {
@@ -36,14 +36,20 @@ class SelectorNode<T> extends RelaxValueNode<T> implements SelectorValue<T> {
    * Custom getter that tracks dependencies during computation
    */
   private getter: RelaxStateGetter = (state) => {
-    const value = get(state);
+    const value = getState(state);
     this.deps.add(state);
     return value;
   };
 
-  constructor(computeFn: (getter: RelaxStateGetter) => T | Promise<T>) {
-    super('selector');
-    this.computeFn = computeFn;
+  constructor({
+    get,
+    key,
+  }: {
+    get: (getter: RelaxStateGetter) => T | Promise<T>;
+    key?: string;
+  }) {
+    super({ type: 'selector', key });
+    this.computeFn = get;
     this.update();
   }
 
@@ -80,13 +86,19 @@ class SelectorNode<T> extends RelaxValueNode<T> implements SelectorValue<T> {
 /**
  * Creates a new derived state (selector)
  * @template T - The type of the computed value
- * @param computeFn - Function that computes the derived value
+ * @param options - Selector configuration options
+ * @param options.get - Function that computes the derived value
+ * @param options.key - Optional unique identifier
  * @returns A SelectorValue object representing the derived state
  */
-export const selector = <T>(
-  computeFn: (getter: RelaxStateGetter) => T | Promise<T>
-): SelectorValue<T> => {
-  const selector = new SelectorNode(computeFn);
+export const selector = <T>({
+  get,
+  key,
+}: {
+  get: (getter: RelaxStateGetter) => T | Promise<T>;
+  key?: string;
+}): SelectorValue<T> => {
+  const selector = new SelectorNode({ get, key });
   return {
     id: selector.id,
     type: 'selector',

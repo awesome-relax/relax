@@ -1,13 +1,13 @@
 /**
  * Core state management system for Relax framework
- * Provides the foundation for reactive state management with effects
+ * Provides infrastructure for reactive state management including state nodes, effects system, and lifecycle management
  */
 
 import { createId } from './id';
 
 /**
- * Store function placeholder for future state persistence
- * @param id - The store identifier
+ * State persistence function (placeholder implementation)
+ * @param id - The storage identifier
  * @returns Empty string (placeholder implementation)
  */
 export const store = (): string => {
@@ -15,8 +15,8 @@ export const store = (): string => {
 };
 
 /**
- * Restore function placeholder for future state restoration
- * @param id - The store identifier to restore from
+ * State restoration function (placeholder implementation)
+ * @param id - The storage identifier to restore from
  * @returns Empty string (placeholder implementation)
  */
 export const restore = (id?: string): string => {
@@ -30,21 +30,31 @@ export const restore = (id?: string): string => {
 export interface RelaxValue<T> {
   id: string;
   value?: T;
+  key?: string;
 }
 
 /**
- * Core state node that manages effects and lifecycle
+ * Core state node class managing effects and lifecycle
  * @template T - The type of the state value
  */
 export class RelaxValueNode<T> implements RelaxValue<T> {
   readonly id: string;
+  readonly key?: string;
+  value?: T;
   private readonly effects: Set<(state: RelaxValue<T>) => void> = new Set();
 
-  constructor(
-    type: string,
-    public value?: T
-  ) {
+  constructor({
+    type,
+    value,
+    key,
+  }: {
+    type: string;
+    value?: T;
+    key?: string;
+  }) {
     this.id = createId(type);
+    this.key = key;
+    this.value = value;
     RELAX_NODES.set(this.id, this);
   }
 

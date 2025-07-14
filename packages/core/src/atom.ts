@@ -1,12 +1,12 @@
 /**
- * Atomic state management for Relax framework
- * Provides the foundation for creating and managing atomic state units
+ * Atomic state management - Core state unit for Relax framework
+ * Provides foundation for creating and managing atomic states with support for synchronous and asynchronous updates
  */
 
 import { RELAX_NODES, RelaxValueNode, set, type RelaxValue } from './state';
 
 /**
- * Interface for atomic state with type information
+ * Atomic state interface defining the basic structure of atomic states
  * @template T - The type of the state value
  * @template R - The type of the update parameter (defaults to T)
  */
@@ -15,7 +15,7 @@ export interface RelaxState<T, _R = T> extends RelaxValue<T> {
 }
 
 /**
- * Internal node class for atomic state management
+ * Atomic state node class managing lifecycle and update logic
  * @template T - The type of the state value
  * @template R - The type of the update parameter
  */
@@ -23,19 +23,20 @@ class RelaxStateNode<T, R = T> extends RelaxValueNode<T> implements RelaxState<T
   readonly type: 'atom';
   updateFn?: (params: R) => T | Promise<T>;
 
-  constructor(
-    public value: T,
-    public defaultValue?: T
-  ) {
-    super('atom', value);
+  constructor({
+    get,
+    defaultValue,
+    key,
+  }: {
+    get?: (params: R) => T | Promise<T>;
+    defaultValue?: T;
+    key?: string;
+  }) {
+    super({ type: 'atom', value: defaultValue, key });
     this.type = 'atom';
 
-    // If value is a function, treat it as an update function
-    if (typeof value === 'function') {
-      this.updateFn = value as (params: R) => T | Promise<T>;
-    } else {
-      this.value = value;
-    }
+    this.updateFn = get;
+    this.value = defaultValue;
   }
 }
 
@@ -43,23 +44,31 @@ class RelaxStateNode<T, R = T> extends RelaxValueNode<T> implements RelaxState<T
  * Creates a new atomic state
  * @template T - The type of the state value
  * @template R - The type of the update parameter
- * @param value - Initial value or update function
- * @param defaultValue - Default value (used when value is a function)
+ * @param options - Atomic state configuration options
+ * @param options.get - Optional update function for computing new state values
+ * @param options.defaultValue - Optional default value used when update function is provided
+ * @param options.key - Optional unique identifier
  * @returns A RelaxState object representing the atomic state
  */
-export const atom = <T, R = T>(
-  value: T | ((params: R) => T | Promise<T>),
-  defaultValue?: T
-): RelaxState<T, R> => {
-  const atom = new RelaxStateNode(value, defaultValue);
+export const atom = <T, R = T>({
+  get,
+  defaultValue,
+  key,
+}: {
+  get?: (params: R) => T | Promise<T>;
+  defaultValue?: T;
+  key?: string;
+}): RelaxState<T, R> => {
+  const atom = new RelaxStateNode({ get, defaultValue, key });
   return {
     id: atom.id,
     type: 'atom',
+    key,
   };
 };
 
 /**
- * Updates an atomic state with a new value
+ * Updates the value of an atomic state
  * @template T - The type of the state value
  * @template R - The type of the update parameter
  * @param state - The atomic state to update
@@ -71,10 +80,10 @@ export const update = async <T, R>(state: RelaxState<T, R>, value: R) => {
     throw new Error(`Atom ${state.id} not found`);
   }
 
-  // If there's an update function, use it; otherwise, use the value directly
+  // Use update function if available, otherwise use the value directly
   const newValue = atom.updateFn ? await atom.updateFn(value) : value;
   set(state, newValue as T);
 };
 
-// TODO: For global state, we need a global state manager.
+// TODO: For global state, we need a global state manager
 // How to solve state confusion and memory leaks in SSR scenarios?
