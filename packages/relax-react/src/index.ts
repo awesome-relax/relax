@@ -4,7 +4,7 @@
  */
 
 // Export React hooks for state management
-export { useRelaxState, useRelaxValue } from './hooks';
+export { useRelaxValue } from './hooks';
 
 // Re-export all core functionality for convenience
 export * from '@relax/core';

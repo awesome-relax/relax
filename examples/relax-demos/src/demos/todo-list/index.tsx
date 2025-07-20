@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './index.scss';
-import { atom, selector, update } from '@relax/core';
-import { useRelaxState, useRelaxValue } from '@relax/react';
+import { atom, selector, update, get } from '@relax/core';
+import { useRelaxValue } from '@relax/react';
 
 interface Todo {
   id: string;
@@ -25,7 +25,7 @@ const pendingCountSelector = selector({
 });
 
 export const TodoList = () => {
-  const [todos, setTodos] = useRelaxState(todoListAtom);
+  const todos = useRelaxValue(todoListAtom);
   const completedCount = useRelaxValue(completedCountSelector);
   const pendingCount = useRelaxValue(pendingCountSelector);
   const [inputValue, setInputValue] = useState('');
@@ -41,18 +41,21 @@ export const TodoList = () => {
       completed: false,
     };
     
-    setTodos([...todos, newTodo]);
+    const currentTodos = get(todoListAtom) || [];
+    update(todoListAtom, [...currentTodos, newTodo]);
     setInputValue('');
   };
 
   const toggleTodo = (id: string) => {
-    setTodos(todos.map(todo => 
+    const currentTodos = get(todoListAtom) || [];
+    update(todoListAtom, currentTodos.map((todo: Todo) => 
       todo.id === id ? { ...todo, completed: !todo.completed } : todo
     ));
   };
 
   const removeTodo = (id: string) => {
-    setTodos(todos.filter(todo => todo.id !== id));
+    const currentTodos = get(todoListAtom) || [];
+    update(todoListAtom, currentTodos.filter((todo: Todo) => todo.id !== id));
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
