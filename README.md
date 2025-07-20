@@ -4,13 +4,6 @@ A modern front-end MVC framework with reactive state management, modular design,
 
 ---
 
-## 📦 Monorepo Structure
-
-```
-```
-
----
-
 ## ✨ Packages
 
 ### [`@relax/core`](./packages/core)
@@ -91,11 +84,3 @@ Contributions, issues, and feature requests are welcome!
 Feel free to submit a PR or open an issue.
 
 ---
-
-## 📄 License
-
-ISC License
-
----
-
-如果你需要更详细的介绍或有特殊格式要求，请告知！
