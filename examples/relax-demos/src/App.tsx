@@ -2,21 +2,43 @@ import './App.css';
 
 
 import { TodoList } from './demos/todo-list';
+import { InfiniteScroll } from './demos/infinite-scroll';
+import { useState } from 'react';
 
+
+const DEMOS = [
+  {
+    title: 'Todo List',
+    component: TodoList,
+  },
+  {
+    title: 'Infinite Scroll',
+    component: InfiniteScroll,
+  },
+]
 
 export function App() {
-
+  const [selectedDemo, setSelectedDemo] = useState<typeof DEMOS[number] | null>(()=>DEMOS[0]);
   return (
     <div className="appContainer">
       <div className="appHeader">
         <h1>Relax Demos</h1>
       </div>
       <div className="appContent">
-        <ul className="appDemoTitle">
-          <li>Todo List</li>
-        </ul>
+        <div className="appDemoTitle">
+          {DEMOS.map((demo) => (
+            <button 
+              type="button"
+              onClick={() => setSelectedDemo(demo)} 
+              key={demo.title}
+              className="demoButton"
+            >
+              {demo.title}
+            </button>
+          ))}
+        </div>
         <div className="appDemo">
-        <TodoList />
+          {selectedDemo && <selectedDemo.component />}
         </div>
       </div>
     </div>
