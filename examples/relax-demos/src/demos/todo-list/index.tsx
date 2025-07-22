@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './index.scss';
 import { atom, selector, update, get } from '@relax/core';
 import { useRelaxValue } from '@relax/react';
+import { useTranslation } from '../../i18n/useTranslation';
 
 interface Todo {
   id: string;
@@ -25,6 +26,7 @@ const pendingCountSelector = selector({
 });
 
 export const TodoList = () => {
+  const t = useTranslation();
   const todos = useRelaxValue(todoListAtom);
   const completedCount = useRelaxValue(completedCountSelector);
   const pendingCount = useRelaxValue(pendingCountSelector);
@@ -67,8 +69,8 @@ export const TodoList = () => {
   return (
     <div className="todoList">
       <div className="todoListHeader">
-        <h2 className="todoListTitle">待办事项</h2>
-        <p className="todoListSubtitle">管理你的任务清单</p>
+        <h2 className="todoListTitle">{t('title')}</h2>
+        <p className="todoListSubtitle">{t('subtitle')}</p>
       </div>
       
       <div className="todoListInput">
@@ -78,7 +80,7 @@ export const TodoList = () => {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="输入新的待办事项..."
+          placeholder={t('inputPlaceholder')}
         />
         <button 
           type="button"
@@ -86,7 +88,7 @@ export const TodoList = () => {
           onClick={addTodo}
           disabled={!inputValue.trim()}
         >
-          添加
+          {t('addButton')}
         </button>
       </div>
 
@@ -94,8 +96,8 @@ export const TodoList = () => {
         {todos.length === 0 ? (
           <div className="emptyState">
             <div className="emptyIcon">📝</div>
-            <p className="emptyText">暂无待办事项</p>
-            <p className="emptySubtext">添加一些任务开始你的计划吧！</p>
+            <p className="emptyText">{t('emptyTitle')}</p>
+            <p className="emptySubtext">{t('emptySubtitle')}</p>
           </div>
         ) : (
           <ul className="todoItems">
@@ -106,7 +108,7 @@ export const TodoList = () => {
                     type="button"
                     className="todoCheckbox"
                     onClick={() => toggleTodo(todo.id)}
-                    aria-label={todo.completed ? '标记为未完成' : '标记为已完成'}
+                    aria-label={todo.completed ? t('markIncomplete') : t('markCompleted')}
                   >
                     {todo.completed && <span className="checkmark">✓</span>}
                   </button>
@@ -114,7 +116,7 @@ export const TodoList = () => {
                     type="button"
                     className="todoText"
                     onClick={() => toggleTodo(todo.id)}
-                    aria-label={todo.completed ? '标记为未完成' : '标记为已完成'}
+                    aria-label={todo.completed ? t('markIncomplete') : t('markCompleted')}
                   >
                     {todo.text}
                   </button>
@@ -123,7 +125,7 @@ export const TodoList = () => {
                   type="button"
                   className="deleteButton"
                   onClick={() => removeTodo(todo.id)}
-                  aria-label="删除任务"
+                  aria-label={t('deleteTask')}
                 >
                   ×
                 </button>
@@ -136,9 +138,9 @@ export const TodoList = () => {
       {todos.length > 0 && (
         <div className="todoListFooter">
           <div className="todoStats">
-            <span className="totalCount">总计: {todos.length}</span>
-            <span className="completedCount">已完成: {completedCount}</span>
-            <span className="pendingCount">待完成: {pendingCount}</span>
+            <span className="totalCount">{t('totalCount')}: {todos.length}</span>
+            <span className="completedCount">{t('completedCount')}: {completedCount}</span>
+            <span className="pendingCount">{t('pendingCount')}: {pendingCount}</span>
           </div>
         </div>
       )}

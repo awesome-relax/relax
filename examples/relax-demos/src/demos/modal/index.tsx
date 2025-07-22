@@ -1,6 +1,7 @@
 import './index.scss';
 import { atom, selector, update } from '@relax/core';
 import { useRelaxValue } from '@relax/react';
+import { useTranslation } from '../../i18n/useTranslation';
 
 interface ModalData {
   title: string;
@@ -51,13 +52,19 @@ const modalIconSelector = selector({
 });
 
 export const ModalDemo = () => {
+  const t = useTranslation();
   const modalData = useRelaxValue(modalDataAtom);
   const { overlayClass, contentClass } = useRelaxValue(modalClassSelector);
   const modalIcon = useRelaxValue(modalIconSelector);
 
-  const openModal = (type: ModalData['type'], title: string, content: string) => {
-    console.log('openModal', type, title, content);
-    update(modalDataAtom, { title, content, type });
+  const openModal = (type: ModalData['type']) => {
+    const titleKey = `${type}Title`;
+    const contentKey = `${type}Content`;
+    update(modalDataAtom, { 
+      title: t(titleKey), 
+      content: t(contentKey), 
+      type 
+    });
     update(modalVisibleAtom, true);
   };
   console.log('modalData', modalData,overlayClass,contentClass);
@@ -85,44 +92,44 @@ export const ModalDemo = () => {
           <button
             type="button"
             className="modalButton modalButtonInfo"
-            onClick={() => openModal('info', 'Information', 'This is an information modal for displaying general information.')}
+            onClick={() => openModal('info')}
           >
-            Info Modal
+            {t('infoModal')}
           </button>
           
           <button
             type="button"
             className="modalButton modalButtonSuccess"
-            onClick={() => openModal('success', 'Success', 'Congratulations! Your operation has been completed successfully.')}
+            onClick={() => openModal('success')}
           >
-            Success Modal
+            {t('successModal')}
           </button>
           
           <button
             type="button"
             className="modalButton modalButtonWarning"
-            onClick={() => openModal('warning', 'Warning', 'Please note that this operation may have some side effects.')}
+            onClick={() => openModal('warning')}
           >
-            Warning Modal
+            {t('warningModal')}
           </button>
           
           <button
             type="button"
             className="modalButton modalButtonError"
-            onClick={() => openModal('error', 'Error', 'Sorry, the operation failed. Please try again later.')}
+            onClick={() => openModal('error')}
           >
-            Error Modal
+            {t('errorModal')}
           </button>
         </div>
 
         <div className="modalDemoInfo">
-          <h3 className="modalDemoInfoTitle">Features</h3>
+          <h3 className="modalDemoInfoTitle">{t('features')}</h3>
           <ul className="modalDemoInfoList">
-            <li>Use Relax state management to control modal display</li>
-            <li>Support multiple modal types (info, success, warning, error)</li>
-            <li>Click overlay or press ESC to close modal</li>
-            <li>Responsive design, adapts to different screen sizes</li>
-            <li>Use Selector to compute modal styles and icons</li>
+            <li>{t('feature1')}</li>
+            <li>{t('feature2')}</li>
+            <li>{t('feature3')}</li>
+            <li>{t('feature4')}</li>
+            <li>{t('feature5')}</li>
           </ul>
         </div>
       </div>
@@ -137,7 +144,7 @@ export const ModalDemo = () => {
               type="button"
               className="modalCloseButton"
               onClick={closeModal}
-              aria-label="Close modal"
+              aria-label={t('closeModal')}
             >
               ×
             </button>
@@ -153,7 +160,7 @@ export const ModalDemo = () => {
               className="modalConfirmButton"
               onClick={closeModal}
             >
-              Confirm
+              {t('confirm')}
             </button>
           </div>
         </div>
