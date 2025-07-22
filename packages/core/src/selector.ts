@@ -98,7 +98,7 @@ export const selector = <T>({
   get,
   key,
 }: {
-  get: (getter: RelaxStateGetter) => T | Promise<T>;
+  get: (getter: RelaxStateGetter, prev?: T) => T | Promise<T>;
   key?: string;
 }): SelectorValue<T> => {
   const selector = new SelectorNode({ get, key });
