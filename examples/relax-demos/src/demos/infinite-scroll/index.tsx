@@ -12,35 +12,52 @@ interface ListItem {
 }
 
 // 定义状态
-const listAtom = atom<ListItem[]>({
-  defaultValue: [],
+const listAtom = selector<{items:ListItem[],hasMore:boolean}>({
+  get: async (get, prev) => {
+     // 模拟网络延迟
+     await new Promise(resolve => setTimeout(resolve, 1000));
+    
+     const currentPage = get(pageAtom) ?? 0;
+     if (currentPage === 0) {
+      return {
+        items: [],
+        hasMore: true,
+      };
+     }
+     // 模拟API数据
+     const mockData: ListItem[] = Array.from({ length: 10 }, (_, index) => {
+       const id = (currentPage - 1) * 10 + index + 1;
+       return {
+         id,
+         title: `title ${id}`,
+         description: `description ${id}`,
+         image: `https://picsum.photos/300/200?random=${id}`,
+       };
+     });
+     return {
+      items: [...(prev?.items || []), ...mockData],
+      hasMore: currentPage < 5,
+     };
+  }
 });
 
 const loadingAtom = atom<boolean>({
   defaultValue: false,
 });
 
-const hasMoreAtom = atom<boolean>({
-  defaultValue: true,
-});
 
 const pageAtom = atom<number>({
   defaultValue: 1,
 });
 
-// 选择器
-const listLengthSelector = selector({
-  get: (get) => get(listAtom)?.length || 0,
-});
 
 
 
 export const InfiniteScroll = () => {
   const t = useTranslation();
-  const list = useRelaxValue(listAtom);
+  const {items,hasMore} = useRelaxValue(listAtom);
   const loading = useRelaxValue(loadingAtom);
-  const hasMore = useRelaxValue(hasMoreAtom);
-  const listLength = useRelaxValue(listLengthSelector);
+
   
   const containerRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -48,48 +65,18 @@ export const InfiniteScroll = () => {
   // 模拟API请求
   const fetchList = useCallback(async () => {
     const currentLoading = get(loadingAtom);
-    const currentHasMore = get(hasMoreAtom);
     
-    if (currentLoading || !currentHasMore) {
+    if (currentLoading || !hasMore) {
       return;
     }
 
-    update(loadingAtom, true);
+    update(pageAtom, (prev) => (prev ?? 0) + 1);
     
-    // 模拟网络延迟
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const currentPage = get(pageAtom) || 1;
-    const currentList = get(listAtom) || [];
-    
-    // 模拟API数据
-    const mockData: ListItem[] = Array.from({ length: 10 }, (_, index) => {
-      const id = (currentPage - 1) * 10 + index + 1;
-      return {
-        id,
-        title: `${t('itemTitle')} ${id}`,
-        description: t('itemDescription', { id }),
-        image: `https://picsum.photos/300/200?random=${id}`,
-      };
-    });
-
-    update(listAtom, [...currentList, ...mockData]);
-    update(pageAtom, currentPage + 1);
-    
-    // 模拟数据结束条件
-    if (currentPage >= 5) {
-      update(hasMoreAtom, false);
-    }
-    
-    update(loadingAtom, false);
-  }, [t]);
+  }, [hasMore]);
 
   // 重置列表
   const resetList = () => {
-    update(listAtom, []);
-    update(pageAtom, 1);
-    update(hasMoreAtom, true);
-    fetchList();
+    update(pageAtom, 0);
   };
 
   useEffect(() => {
@@ -139,7 +126,7 @@ export const InfiniteScroll = () => {
 
       <div className="infiniteScrollContent">
         <div className="listContainer">
-          {list.map((item: ListItem) => (
+          {items.map((item: ListItem) => (
             <div key={item.id} className="listItem">
               <div className="itemImage">
                 <img src={item.image} alt={item.title} />
@@ -158,7 +145,7 @@ export const InfiniteScroll = () => {
             </div>
           )}
           
-          {!hasMore && listLength > 0 && (
+          {!hasMore && items.length > 0 && (
             <div className="endIndicator">
               <span className="endText">{t('noMoreData')}</span>
             </div>
