@@ -74,14 +74,18 @@ export const atom = <T, R = T>({
  * @param state - The atomic state to update
  * @param value - The new value or parameter for the update function
  */
-export const update = async <T, R>(state: RelaxState<T, R>, value: R) => {
+export const update = async <T, R>(state: RelaxState<T, R>, value: R | ((prev?: T) => R)) => {
   const atom: RelaxStateNode<T, R> | undefined = RELAX_NODES.get(state.id) as RelaxStateNode<T, R>;
   if (!atom) {
     throw new Error(`Atom ${state.id} not found`);
   }
 
   // Use update function if available, otherwise use the value directly
-  const newValue = atom.updateFn ? await atom.updateFn(value) : value;
+  const newValue = atom.updateFn
+    ? await atom.updateFn(
+        typeof value === 'function' ? (value as (prev: T) => R)(atom.value as T) : value
+      )
+    : value;
   set(state, newValue as T);
 };
 
