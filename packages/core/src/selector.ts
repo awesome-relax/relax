@@ -65,12 +65,15 @@ class SelectorNode<T> extends RelaxValueNode<T> implements SelectorValue<T> {
 
   /**
    * Clears all current dependencies and their effects
+   * @fix  fix the bug:
+   * 1. when the selector depend on two or more state,and these state changes on the same time,the selector will not update
+   * 2. just remove the clear code to fix the bug,until find a better solution
    */
   private prepare() {
-    this.deps.forEach((dep) => {
-      removeEffect(dep, this.effectHandle);
-    });
-    this.deps.clear();
+    // this.deps.forEach((dep) => {
+    //   removeEffect(dep, this.effectHandle);
+    // });
+    // this.deps.clear();
   }
 
   /**
