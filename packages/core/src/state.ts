@@ -20,7 +20,7 @@ export const store = (): string => {
  * @returns Empty string (placeholder implementation)
  */
 export const restore = (id?: string): string => {
-  return '';
+  return id || '';
 };
 
 /**
