@@ -1,0 +1,329 @@
+.modalDemo {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.modalDemoHeader {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.modalDemoTitle {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 0.5rem 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.modalDemoSubtitle {
+    font-size: 1.1rem;
+    color: #666;
+    margin: 0;
+    font-weight: 400;
+}
+
+.modalDemoContent {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.modalButtons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.modalButton {
+    padding: 1rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    &:hover::before {
+        left: 100%;
+    }
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+.modalButtonInfo {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.modalButtonSuccess {
+    background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+}
+
+.modalButtonWarning {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.modalButtonError {
+    background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+}
+
+.modalDemoInfo {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.modalDemoInfoTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0 0 1rem 0;
+}
+
+.modalDemoInfoList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.modalDemoInfoList li {
+    padding: 0.5rem 0;
+    color: #34495e;
+    position: relative;
+    padding-left: 1.5rem;
+
+    &::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: #27ae60;
+        font-weight: bold;
+    }
+}
+
+// Modal Overlay
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px);
+}
+
+.modalOverlayVisible {
+    opacity: 1;
+    visibility: visible;
+}
+
+// Modal Content
+.modalContent {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow: hidden;
+    transform: scale(0.7);
+    transition: transform 0.3s ease;
+    position: relative;
+}
+
+.modalOverlayVisible .modalContent {
+    transform: scale(1);
+}
+
+.modalContentInfo {
+    border-top: 4px solid #667eea;
+}
+
+.modalContentSuccess {
+    border-top: 4px solid #56ab2f;
+}
+
+.modalContentWarning {
+    border-top: 4px solid #f093fb;
+}
+
+.modalContentError {
+    border-top: 4px solid #ff416c;
+}
+
+.modalHeader {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem 2rem 1rem;
+    border-bottom: 1px solid #e1e8ed;
+    position: relative;
+}
+
+.modalIcon {
+    font-size: 2rem;
+    margin-right: 1rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #f8f9fa;
+}
+
+.modalTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+    flex: 1;
+}
+
+.modalCloseButton {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #95a5a6;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+        background: #f8f9fa;
+        color: #2c3e50;
+    }
+}
+
+.modalBody {
+    padding: 1.5rem 2rem;
+}
+
+.modalContent {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #34495e;
+    margin: 0;
+}
+
+.modalFooter {
+    padding: 1rem 2rem 2rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.modalConfirmButton {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+    .modalDemo {
+        padding: 1rem;
+    }
+
+    .modalDemoTitle {
+        font-size: 2rem;
+    }
+
+    .modalButtons {
+        grid-template-columns: 1fr;
+    }
+
+    .modalContent {
+        width: 95%;
+        margin: 1rem;
+    }
+
+    .modalHeader,
+    .modalBody,
+    .modalFooter {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .modalDemoTitle {
+        font-size: 1.75rem;
+    }
+
+    .modalContent {
+        width: 98%;
+        margin: 0.5rem;
+    }
+
+    .modalHeader,
+    .modalBody,
+    .modalFooter {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .modalTitle {
+        font-size: 1.25rem;
+    }
+
+    .modalContent {
+        font-size: 1rem;
+    }
+}

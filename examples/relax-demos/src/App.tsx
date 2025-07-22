@@ -3,6 +3,7 @@ import './App.css';
 
 import { TodoList } from './demos/todo-list';
 import { InfiniteScroll } from './demos/infinite-scroll';
+import { ModalDemo } from './demos/modal';
 import { useState } from 'react';
 
 
@@ -14,6 +15,10 @@ const DEMOS = [
   {
     title: 'Infinite Scroll',
     component: InfiniteScroll,
+  },
+  {
+    title: 'Modal Demo',
+    component: ModalDemo,
   },
 ]
 
