@@ -82,13 +82,10 @@ export const update = async <T, R>(state: RelaxState<T, R>, value: R | ((prev?: 
 
   const prev = atom.value;
 
+  const params = typeof value === 'function' ? (value as (prev: T) => R)(prev as T) : value;
+
   // Use update function if available, otherwise use the value directly
-  const newValue = atom.updateFn
-    ? await atom.updateFn(
-        typeof value === 'function' ? (value as (prev: T) => R)(prev as T) : value,
-        prev
-      )
-    : value;
+  const newValue = atom.updateFn ? await atom.updateFn(params, prev) : params;
   set(state, newValue as T);
 };
 

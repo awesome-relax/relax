@@ -8,7 +8,6 @@ import {
   get as getState,
   RelaxValueNode,
   type RelaxValue,
-  removeEffect,
   set,
   type RelaxStateGetter,
 } from './state';
@@ -27,7 +26,7 @@ export interface SelectorValue<T> extends RelaxValue<T> {
  */
 class SelectorNode<T> extends RelaxValueNode<T> implements SelectorValue<T> {
   readonly type: 'selector' = 'selector';
-  private computeFn: (getter: RelaxStateGetter) => T | Promise<T>;
+  private computeFn: (getter: RelaxStateGetter, prev?: T) => T | Promise<T>;
 
   private deps: Set<RelaxValue<any>> = new Set();
   private effectHandle = () => this.update();
@@ -58,7 +57,7 @@ class SelectorNode<T> extends RelaxValueNode<T> implements SelectorValue<T> {
    */
   async update() {
     this.prepare();
-    const result = await this.computeFn(this.getter);
+    const result = await this.computeFn(this.getter, this.value);
     set(this, result);
     this.afterUpdate();
   }
