@@ -21,14 +21,14 @@ export interface RelaxState<T, _R = T> extends RelaxValue<T> {
  */
 class RelaxStateNode<T, R = T> extends RelaxValueNode<T> implements RelaxState<T, R> {
   readonly type: 'atom';
-  updateFn?: (params: R) => T | Promise<T>;
+  updateFn?: (params: R, prev?: T) => T | Promise<T>;
 
   constructor({
     get,
     defaultValue,
     key,
   }: {
-    get?: (params: R) => T | Promise<T>;
+    get?: (params: R, prev?: T) => T | Promise<T>;
     defaultValue?: T;
     key?: string;
   }) {
@@ -55,7 +55,7 @@ export const atom = <T, R = T>({
   defaultValue,
   key,
 }: {
-  get?: (params: R) => T | Promise<T>;
+  get?: (params: R, prev?: T) => T | Promise<T>;
   defaultValue?: T;
   key?: string;
 }): RelaxState<T, R> => {
@@ -80,10 +80,13 @@ export const update = async <T, R>(state: RelaxState<T, R>, value: R | ((prev?: 
     throw new Error(`Atom ${state.id} not found`);
   }
 
+  const prev = atom.value;
+
   // Use update function if available, otherwise use the value directly
   const newValue = atom.updateFn
     ? await atom.updateFn(
-        typeof value === 'function' ? (value as (prev: T) => R)(atom.value as T) : value
+        typeof value === 'function' ? (value as (prev: T) => R)(prev as T) : value,
+        prev
       )
     : value;
   set(state, newValue as T);
