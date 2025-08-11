@@ -1,23 +1,21 @@
 {
-    "name": "relax",
-    "version": "1.0.0",
-    "description": "前端mvc框架",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "format": "biome format --write .",
-        "lint": "biome lint .",
-        "check": "biome check --write .",
-        "organize": "biome check --write --apply-unsafe .",
-        "build": "tsc --build",
-        "build:core": "tsc --build packages/core",
-        "build:react": "tsc --build packages/relax-react",
-        "clean": "tsc --build --clean",
-        "demos": "pnpm --filter @relax/demos run dev"
-    },
-    "keywords": [],
-    "author": "",
-    "license": "ISC",
-    "devDependencies": {
-        "@biomejs/biome": "^2.0.6"
-    }
+  "name": "relax",
+  "version": "1.0.0",
+  "description": "前端mvc框架",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "check": "biome check --write .",
+    "organize": "biome check --write --apply-unsafe .",
+    "demos": "pnpm --filter @relax/demos run dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.6",
+    "rts.js": "^0.0.12",
+    "t-packer": "^0.0.3"
+  }
 }
