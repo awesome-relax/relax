@@ -1,13 +1,17 @@
 {
-    "name": "@relax/core",
-    "version": "0.0.1",
-    "description": "relax core",
-    "main": "src/index.ts",
-    "types":"src/index.ts",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "keywords": [],
-    "author": "",
-    "license": "ISC"
+  "name": "@relax/core",
+  "version": "0.0.1",
+  "description": "relax core",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "vitest": "^1.6.0"
+  }
 }
