@@ -13,16 +13,16 @@ interface Todo {
 // Fix: Use new atom API with object parameter format
 const todoListAtom = atom<Todo[]>({
   defaultValue: [],
-}); 
-update(todoListAtom, [] );
+});
+update(todoListAtom, []);
 
 // Fix: Use new selector API with object parameter format
 const completedCountSelector = selector({
-  get: (get) => get(todoListAtom)?.filter(todo => todo.completed).length || 0
+  get: (get) => get(todoListAtom)?.filter((todo) => todo.completed).length || 0,
 });
 
 const pendingCountSelector = selector({
-  get: (get) => get(todoListAtom)?.filter(todo => !todo.completed).length || 0
+  get: (get) => get(todoListAtom)?.filter((todo) => !todo.completed).length || 0,
 });
 
 export const TodoList = () => {
@@ -36,13 +36,13 @@ export const TodoList = () => {
     if (!inputValue.trim()) {
       return;
     }
-    
+
     const newTodo: Todo = {
       id: Date.now().toString(),
       text: inputValue.trim(),
       completed: false,
     };
-    
+
     const currentTodos = get(todoListAtom) || [];
     update(todoListAtom, [...currentTodos, newTodo]);
     setInputValue('');
@@ -50,14 +50,20 @@ export const TodoList = () => {
 
   const toggleTodo = (id: string) => {
     const currentTodos = get(todoListAtom) || [];
-    update(todoListAtom, currentTodos.map((todo: Todo) => 
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    ));
+    update(
+      todoListAtom,
+      currentTodos.map((todo: Todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
   };
 
   const removeTodo = (id: string) => {
     const currentTodos = get(todoListAtom) || [];
-    update(todoListAtom, currentTodos.filter((todo: Todo) => todo.id !== id));
+    update(
+      todoListAtom,
+      currentTodos.filter((todo: Todo) => todo.id !== id)
+    );
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -72,7 +78,7 @@ export const TodoList = () => {
         <h2 className="todoListTitle">{t('title')}</h2>
         <p className="todoListSubtitle">{t('subtitle')}</p>
       </div>
-      
+
       <div className="todoListInput">
         <input
           type="text"
@@ -82,12 +88,7 @@ export const TodoList = () => {
           onKeyDown={handleKeyDown}
           placeholder={t('inputPlaceholder')}
         />
-        <button 
-          type="button"
-          className="addButton"
-          onClick={addTodo}
-          disabled={!inputValue.trim()}
-        >
+        <button type="button" className="addButton" onClick={addTodo} disabled={!inputValue.trim()}>
           {t('addButton')}
         </button>
       </div>
@@ -138,9 +139,15 @@ export const TodoList = () => {
       {todos.length > 0 && (
         <div className="todoListFooter">
           <div className="todoStats">
-            <span className="totalCount">{t('totalCount')}: {todos.length}</span>
-            <span className="completedCount">{t('completedCount')}: {completedCount}</span>
-            <span className="pendingCount">{t('pendingCount')}: {pendingCount}</span>
+            <span className="totalCount">
+              {t('totalCount')}: {todos.length}
+            </span>
+            <span className="completedCount">
+              {t('completedCount')}: {completedCount}
+            </span>
+            <span className="pendingCount">
+              {t('pendingCount')}: {pendingCount}
+            </span>
           </div>
         </div>
       )}

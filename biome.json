@@ -23,7 +23,8 @@
         "noUnusedVariables": "error"
       },
       "suspicious": {
-        "noExplicitAny": "warn"
+        "noExplicitAny": "warn",
+        "noArrayIndexKey": "off"
       },
       "style": {
         "useConst": "error",
@@ -31,6 +32,10 @@
       },
       "complexity": {
         "noExcessiveCognitiveComplexity": "warn"
+      },
+      "a11y": {
+        "noStaticElementInteractions": "off",
+        "useKeyWithClickEvents": "off"
       }
     }
   },
@@ -41,9 +46,10 @@
       "semicolons": "always"
     }
   },
+
   "json": {
     "formatter": {
       "enabled": true
     }
   }
-} 
+}

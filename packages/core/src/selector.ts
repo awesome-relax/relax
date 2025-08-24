@@ -4,12 +4,12 @@
  */
 
 import {
+  type RelaxValue,
+  type RelaxStateGetter,
   effect,
   get as getState,
   RelaxValueNode,
-  type RelaxValue,
   set,
-  type RelaxStateGetter,
 } from './state';
 
 /**

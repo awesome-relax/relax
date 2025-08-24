@@ -16,5 +16,3 @@ describe('useRelaxValue', () => {
     expect(result.current).toBe(1);
   });
 });
-
-

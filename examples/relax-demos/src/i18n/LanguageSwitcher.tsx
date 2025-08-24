@@ -28,4 +28,4 @@ export const LanguageSwitcher = () => {
       </div>
     </div>
   );
-}; 
+};

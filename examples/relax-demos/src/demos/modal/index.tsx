@@ -60,14 +60,14 @@ export const ModalDemo = () => {
   const openModal = (type: ModalData['type']) => {
     const titleKey = `${type}Title`;
     const contentKey = `${type}Content`;
-    update(modalDataAtom, { 
-      title: t(titleKey), 
-      content: t(contentKey), 
-      type 
+    update(modalDataAtom, {
+      title: t(titleKey),
+      content: t(contentKey),
+      type,
     });
     update(modalVisibleAtom, true);
   };
-  console.log('modalData', modalData,overlayClass,contentClass);
+  console.log('modalData', modalData, overlayClass, contentClass);
   const closeModal = () => {
     update(modalVisibleAtom, false);
   };
@@ -77,8 +77,6 @@ export const ModalDemo = () => {
       closeModal();
     }
   };
-
-
 
   return (
     <div className="modalDemo">
@@ -96,7 +94,7 @@ export const ModalDemo = () => {
           >
             {t('infoModal')}
           </button>
-          
+
           <button
             type="button"
             className="modalButton modalButtonSuccess"
@@ -104,7 +102,7 @@ export const ModalDemo = () => {
           >
             {t('successModal')}
           </button>
-          
+
           <button
             type="button"
             className="modalButton modalButtonWarning"
@@ -112,7 +110,7 @@ export const ModalDemo = () => {
           >
             {t('warningModal')}
           </button>
-          
+
           <button
             type="button"
             className="modalButton modalButtonError"
@@ -149,17 +147,13 @@ export const ModalDemo = () => {
               ×
             </button>
           </div>
-          
+
           <div className="modalBody">
             <p className="modalContent">{modalData.content}</p>
           </div>
-          
+
           <div className="modalFooter">
-            <button
-              type="button"
-              className="modalConfirmButton"
-              onClick={closeModal}
-            >
+            <button type="button" className="modalConfirmButton" onClick={closeModal}>
               {t('confirm')}
             </button>
           </div>
@@ -167,4 +161,4 @@ export const ModalDemo = () => {
       </div>
     </div>
   );
-}; 
+};

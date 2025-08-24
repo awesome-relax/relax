@@ -7,7 +7,6 @@ import { LanguageSwitcher } from './i18n/LanguageSwitcher';
 import { useTranslation } from './i18n/useTranslation';
 import { useState } from 'react';
 
-
 const DEMOS = [
   {
     titleKey: 'todoListTitle',
@@ -21,12 +20,12 @@ const DEMOS = [
     titleKey: 'modalTitle',
     component: ModalDemo,
   },
-]
+];
 
 export function App() {
   const t = useTranslation();
   const [selectedDemoIndex, setSelectedDemoIndex] = useState<number>(0);
-  
+
   return (
     <div className="appContainer">
       <div className="appHeader">
@@ -36,9 +35,9 @@ export function App() {
       <div className="appContent">
         <div className="appDemoTitle">
           {DEMOS.map((demo, index) => (
-            <button 
+            <button
               type="button"
-              onClick={() => setSelectedDemoIndex(index)} 
+              onClick={() => setSelectedDemoIndex(index)}
               key={`demo-${index}`}
               className={`demoButton ${selectedDemoIndex === index ? 'active' : ''}`}
             >
