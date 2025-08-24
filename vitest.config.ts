@@ -5,8 +5,8 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     include: [
-      'packages/*/src/**/__tests__/**/*.{test,spec}.ts',
-      'packages/*/src/**/__tests__/**/*.{test,spec}.tsx',
+      'packages/**/__tests__/**/*.{test,spec}.ts',
+      'packages/**/__tests__/**/*.{test,spec}.tsx',
     ],
   },
 });

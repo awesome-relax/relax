@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { atom, selector, get, update } from '../index';
+import { atom, selector, get, update } from '../src/index';
 
 describe('selector', () => {
   it('should compute derived value and react to dependency changes', async () => {

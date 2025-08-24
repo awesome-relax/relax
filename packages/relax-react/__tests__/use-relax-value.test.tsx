@@ -1,8 +1,11 @@
-import { describe, expect, it } from 'vitest';
+
 import { renderHook, act } from '@testing-library/react';
-import React from 'react';
 import { atom, update } from '@relax/core';
-import { useRelaxValue } from '../hooks';
+
+
+import { describe, expect, it } from 'vitest';
+
+import { useRelaxValue } from '../src/hooks';
 
 describe('useRelaxValue', () => {
   it('should read and update value reactively', async () => {

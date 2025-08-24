@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createEvent } from '../event';
+import { createEvent } from '../src/event';
 
 describe('event', () => {
   it('should add, call and remove listeners', () => {
