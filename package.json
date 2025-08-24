@@ -9,24 +9,25 @@
     "lint": "biome lint .",
     "check": "biome check --write .",
     "organize": "biome check --write --apply-unsafe .",
-    "demos": "pnpm --filter @relax/demos run dev"
+    "demos": "pnpm --filter @relax/demos run dev",
+    "build": "rts scripts/build.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@biomejs/biome": "^2.0.6",
-    "@types/node": "^20.11.30",
-    "rts.js": "^0.0.12",
-    "t-packer": "^0.0.3",
-    "vitest": "^1.6.0",
-    "@testing-library/react": "^14.1.2",
     "@testing-library/dom": "^9.3.3",
+    "@testing-library/react": "^14.1.2",
+    "@types/node": "^20.11.30",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
     "jsdom": "^24.0.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0"
+    "rts.js": "^0.0.12",
+    "t-packer": "^0.0.4",
+    "vitest": "^1.6.0"
   },
   "overrides": {
     "react": "18.3.1",
