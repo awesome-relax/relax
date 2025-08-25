@@ -3,7 +3,7 @@
  * Provides foundation for creating and managing atomic states with support for synchronous and asynchronous updates
  */
 
-import { RELAX_NODES, RelaxValueNode, set, type RelaxValue } from './state';
+import { RELAX_NODES, type RelaxValue, RelaxValueNode, set } from './state';
 
 /**
  * Atomic state interface defining the basic structure of atomic states

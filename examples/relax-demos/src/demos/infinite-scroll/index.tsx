@@ -1,6 +1,6 @@
-import { useEffect, useRef, useCallback } from 'react';
-import { atom, selector, update, get } from '@relax/core';
+import { atom, get, selector, update } from '@relax/core';
 import { useRelaxValue } from '@relax/react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from '../../i18n/useTranslation';
 import './index.scss';
 

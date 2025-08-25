@@ -4,19 +4,17 @@
  */
 
 // Export atom functionality for atomic state management
-export { type RelaxState, atom, update } from './atom';
-// Export selector functionality
-export { type SelectorValue, selector } from './selector';
-
-// Export core state management utilities
-export {
-  type RelaxValue,
-  type RelaxStateGetter,
-  effect,
-  removeEffect,
-  dispose,
-  get,
-} from './state';
-
+export { atom, type RelaxState, update } from './atom';
 // Export event system
 export { createEvent } from './event';
+// Export selector functionality
+export { type SelectorValue, selector } from './selector';
+// Export core state management utilities
+export {
+  dispose,
+  effect,
+  get,
+  type RelaxStateGetter,
+  type RelaxValue,
+  removeEffect,
+} from './state';

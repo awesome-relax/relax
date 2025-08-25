@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { atom, get, update, effect } from '../src/index';
+import { atom, effect, get, update } from '../src/index';
 
 describe('atom', () => {
   it('should create atom and read default value via get', () => {

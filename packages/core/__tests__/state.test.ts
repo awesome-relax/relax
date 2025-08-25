@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { dispose, effect, get, removeEffect, set } from '../src/state';
 import { atom } from '../src/atom';
+import { dispose, effect, get, removeEffect, set } from '../src/state';
 
 describe('state core', () => {
   it('set/get should work and trigger effects', () => {

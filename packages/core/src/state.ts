@@ -55,7 +55,7 @@ export class RelaxValueNode<T> implements RelaxValue<T> {
     this.id = createId(type);
     this.key = key;
     this.value = value;
-    RELAX_NODES.set(this.id, this);
+    RELAX_NODES.set(this.id, this as unknown as RelaxValueNode<unknown>);
   }
 
   /**
@@ -89,14 +89,16 @@ export class RelaxValueNode<T> implements RelaxValue<T> {
    * Trigger all effects for this node
    */
   dispatchEffect() {
-    this.effects.forEach((fn) => fn(this));
+    this.effects.forEach((fn) => {
+      fn(this);
+    });
   }
 }
 
 /**
  * Global registry of all Relax state nodes
  */
-export const RELAX_NODES = new Map<string, RelaxValueNode<any>>();
+export const RELAX_NODES = new Map<string, RelaxValueNode<unknown>>();
 
 /**
  * Get the current value of a state
@@ -104,7 +106,7 @@ export const RELAX_NODES = new Map<string, RelaxValueNode<any>>();
  * @param state - The state to get the value from
  * @returns The current value or undefined
  */
-export const get = <T extends RelaxValue<any>>(state: T): T['value'] | undefined => {
+export const get = <T extends RelaxValue<unknown>>(state: T): T['value'] | undefined => {
   return RELAX_NODES.get(state.id)?.value;
 };
 
@@ -131,8 +133,8 @@ export const set = <T>(state: RelaxValue<T>, value: T) => {
  * Dispose of a state node and clean up resources
  * @param state - The state to dispose
  */
-export const dispose = (state: RelaxValue<any>) => {
-  const relaxNode = RELAX_NODES.get(state.id) as RelaxValueNode<any>;
+export const dispose = <T>(state: RelaxValue<T>) => {
+  const relaxNode = RELAX_NODES.get(state.id) as RelaxValueNode<T>;
   if (relaxNode) {
     relaxNode.dispose();
   }
@@ -144,8 +146,8 @@ export const dispose = (state: RelaxValue<any>) => {
  * @param fn - The effect function
  * @returns A function to remove the effect
  */
-export const effect = (state: RelaxValue<any>, fn: (state: RelaxValue<any>) => void) => {
-  const relaxNode = RELAX_NODES.get(state.id) as RelaxValueNode<any>;
+export const effect = <T>(state: RelaxValue<T>, fn: (state: RelaxValue<T>) => void) => {
+  const relaxNode = RELAX_NODES.get(state.id) as RelaxValueNode<T>;
   if (relaxNode) {
     const remove = () => {
       removeEffect(state, fn);
@@ -161,8 +163,8 @@ export const effect = (state: RelaxValue<any>, fn: (state: RelaxValue<any>) => v
  * @param state - The state to remove the effect from
  * @param fn - The effect function to remove
  */
-export const removeEffect = (state: RelaxValue<any>, fn: (state: RelaxValue<any>) => void) => {
-  const relaxNode = RELAX_NODES.get(state.id) as RelaxValueNode<any>;
+export const removeEffect = <T>(state: RelaxValue<T>, fn: (state: RelaxValue<T>) => void) => {
+  const relaxNode = RELAX_NODES.get(state.id) as RelaxValueNode<T>;
   if (relaxNode) {
     relaxNode.removeEffect(fn);
   }
@@ -172,8 +174,8 @@ export const removeEffect = (state: RelaxValue<any>, fn: (state: RelaxValue<any>
  * Internal function to dispatch effects for a state
  * @param state - The state to dispatch effects for
  */
-const dispatchEffect = (state: RelaxValue<any>) => {
-  const relaxNode = RELAX_NODES.get(state.id) as RelaxValueNode<any>;
+const dispatchEffect = <T>(state: RelaxValue<T>) => {
+  const relaxNode = RELAX_NODES.get(state.id) as RelaxValueNode<T>;
   if (relaxNode) {
     relaxNode.dispatchEffect();
   }

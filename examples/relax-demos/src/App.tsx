@@ -1,11 +1,11 @@
 import './App.css';
 
-import { TodoList } from './demos/todo-list';
+import { useState } from 'react';
 import { InfiniteScroll } from './demos/infinite-scroll';
 import { ModalDemo } from './demos/modal';
+import { TodoList } from './demos/todo-list';
 import { LanguageSwitcher } from './i18n/LanguageSwitcher';
 import { useTranslation } from './i18n/useTranslation';
-import { useState } from 'react';
 
 const DEMOS = [
   {

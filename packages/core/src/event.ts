@@ -27,7 +27,9 @@ export const createEvent = <T>(): EventDispatcher<T> => {
   const listeners: Listener<T>[] = [];
 
   const dispatch: EventDispatcher<T> = (value: T) => {
-    listeners.forEach((fn) => fn(value));
+    listeners.forEach((fn) => {
+      fn(value);
+    });
   };
 
   // Add listener to the event

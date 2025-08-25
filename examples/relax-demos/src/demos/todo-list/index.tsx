@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import './index.scss';
-import { atom, selector, update, get } from '@relax/core';
+import { atom, get, selector, update } from '@relax/core';
 import { useRelaxValue } from '@relax/react';
 import { useTranslation } from '../../i18n/useTranslation';
 
