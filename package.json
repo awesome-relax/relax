@@ -20,7 +20,9 @@
     "@types/node": "^20.11.30",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
+    "husky": "^9.1.7",
     "jsdom": "^24.0.0",
+    "lint-staged": "^16.1.5",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "rts.js": "^0.0.12",
@@ -30,5 +32,11 @@
   "overrides": {
     "react": "18.3.1",
     "react-dom": "18.3.1"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,json,md,yml,yaml}": [
+      "biome check --write",
+      "git add -A"
+    ]
   }
 }
