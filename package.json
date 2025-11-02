@@ -8,12 +8,14 @@
     "check": "biome check .",
     "check:fix": "biome check --write .",
     "demos": "pnpm --filter @relax/demos run dev",
-    "build": "rts scripts/build.ts"
+    "build": "rts scripts/build.ts",
+    "release": "rts scripts/release.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@changesets/cli": "^2.27.8",
     "@biomejs/biome": "^2.2.2",
     "@testing-library/dom": "^9.3.3",
     "@testing-library/react": "^14.1.2",
