@@ -1,45 +1,96 @@
-# Task Plan: 修改单测，之后再修改relax-react
+# 代码审查建议计划
 
-## 项目概述
-项目已经添加了新的功能，包括 `computed` 和 `store`，但现有的测试文件和 react 集成还没有更新以支持这些功能。
+## 概述
+针对最近代码变更的审查建议，制定以下改进计划
 
-## 总体目标
-1. 更新测试文件以支持新的 `computed` 功能
-2. 更新 relax-react 包以支持新功能
-3. 确保所有功能正常工作
+## 1. API 一致性改进
 
-## 详细任务
+### 1.1 StateNode 类的 value 属性一致性
+- 文件：`packages/core/src/state.ts`
+- 问题：StateNode 类的 value 属性是只读的，但在 Store 类中可以修改
+- 建议：
+  - 确保 StateNode 类的 value 属性是可变的
+  - 或者修改 Store 类，使其通过 StateNode 的方法来修改值
 
-### 阶段一：更新测试文件 (当前阶段)
-- [x] 检查现有测试文件结构
-- [x] 查看 selector.test.ts 文件内容
-- [x] 查看 computed.ts 文件内容
-- [x] 更新 selector.test.ts 为 computed.test.ts
-- [x] 创建 store.test.ts 文件
-- [ ] 删除 atom.ts 和 atom.test.ts 文件
-- [ ] 更新 index.ts 文件
-- [ ] 运行所有测试以确保它们通过
+### 1.2 Store 类的 get 方法类型安全
+- 文件：`packages/core/src/store.ts`
+- 问题：get 方法返回 T 类型，但当状态未找到时会抛出异常
+- 建议：
+  - 允许 get 方法返回 undefined 类型
+  - 或者在状态未找到时返回默认值
 
-### 阶段二：更新 relax-react 包
-- [ ] 检查 relax-react 包的源代码
-- [ ] 更新 relax-react 以支持 new features
-- [ ] 更新 relax-react 的测试文件
-- [ ] 运行 relax-react 的测试
+## 2. 循环依赖检测改进
 
-### 阶段三：验证和测试
-- [ ] 运行整个项目的测试
-- [ ] 检查项目是否能正常构建
-- [ ] 验证 examples 是否能正常工作
+### 2.1 增强异常信息
+- 文件：`packages/core/src/store.ts`
+- 问题：异常信息可以更详细，包括循环依赖的路径
+- 建议：
+  - 记录计算堆栈，以便在异常信息中显示循环依赖的路径
 
-## 决策记录
+### 2.2 可配置的循环依赖处理
+- 文件：`packages/core/src/store.ts`
+- 问题：只能通过抛出异常来处理循环依赖
+- 建议：
+  - 添加一个配置选项，允许用户选择是抛出异常还是返回默认值
 
-## 文件创建/修改记录
+## 3. 依赖跟踪优化
 
-| File | Status | Comments |
-|------|--------|----------|
-| packages/core/__tests__/selector.test.ts | 待修改 | 需要更新为使用 computed |
-| packages/core/__tests__/store.test.ts | 待创建 | 需要创建新的测试文件 |
-| packages/relax-react/src/ | 待检查 | 需要检查是否需要更新 |
-| packages/relax-react/__tests__/ | 待检查 | 需要检查是否需要更新 |
+### 3.1 可选的依赖跟踪
+- 文件：`packages/core/src/store.ts`
+- 问题：无法选择是否跟踪依赖关系
+- 建议：
+  - 添加一个选项，允许用户选择是否跟踪依赖关系
+  - 对于不需要响应式更新的计算，可以禁用依赖跟踪
 
-## Errors Encountered
+### 3.2 依赖跟踪性能优化
+- 文件：`packages/core/src/store.ts`
+- 问题：可以优化依赖跟踪的性能
+- 建议：
+  - 减少不必要的计算
+  - 优化依赖存储结构
+
+## 4. 测试覆盖率提升
+
+### 4.1 新增测试用例
+- 文件：`packages/core/__tests__/store.test.ts`
+- 问题：测试覆盖率可以进一步提高，特别是关于循环依赖检测和依赖跟踪的测试
+- 建议：
+  - 添加循环依赖检测的测试用例
+  - 添加依赖跟踪的测试用例
+
+### 4.2 性能测试
+- 文件：`packages/core/__tests__/store.test.ts`
+- 问题：没有性能测试
+- 建议：
+  - 添加一些性能测试，评估新实现的性能
+
+## 5. 文档补充
+
+### 5.1 新 API 文档
+- 文件：`packages/core/src/index.ts`
+- 问题：新 API 的文档需要补充
+- 建议：
+  - 为每个导出的函数和类添加 JSDoc 注释
+  - 解释新 API 的使用方法和注意事项
+
+### 5.2 示例代码
+- 文件：`examples/relax-demos/src`
+- 问题：可以添加一些示例代码，演示如何使用新 API
+- 建议：
+  - 添加更多示例组件，演示新 API 的各种用法
+
+### 5.3 迁移指南
+- 文件：`README.md`
+- 问题：没有迁移指南，帮助用户从旧 API 迁移到新 API
+- 建议：
+  - 创建一个迁移指南，解释新 API 与旧 API 的区别
+  - 提供代码修改建议
+
+## 状态
+
+- [ ] API 一致性改进
+- [ ] 循环依赖检测改进
+- [ ] 依赖跟踪优化
+- [ ] 测试覆盖率提升
+- [ ] 文档补充
+

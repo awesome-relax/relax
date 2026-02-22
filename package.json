@@ -9,7 +9,10 @@
     "check:fix": "biome check --write .",
     "demos": "pnpm --filter @relax/demos run dev",
     "build": "rts scripts/build.ts",
-    "release": "rts scripts/release.ts"
+    "release": "rts scripts/release.ts",
+    "changeset": "pnpm -w exec changeset",
+    "changeset:version": "pnpm -w exec changeset version",
+    "changeset:publish": "pnpm -w exec changeset publish"
   },
   "keywords": [],
   "author": "",
