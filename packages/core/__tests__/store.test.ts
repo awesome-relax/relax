@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { state, computed, createStore } from '../src/index';
+import { computed, createStore, state } from '../src/index';
 
 describe('store', () => {
   it('should create a store instance', () => {

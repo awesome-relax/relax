@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { state, computed, DefultStore } from '../src/index';
+import { computed, DefultStore, state } from '../src/index';
 
 describe('computed', () => {
   it('should compute derived value and react to dependency changes', async () => {

@@ -1,5 +1,5 @@
 import './index.scss';
-import { state, computed, DefultStore } from '@relax-state/core';
+import { computed, DefultStore, state } from '@relax-state/core';
 import { useRelaxValue } from '@relax-state/react';
 import { useTranslation } from '../../i18n/useTranslation';
 
@@ -20,7 +20,11 @@ const modalDataAtom = state<ModalData>({
 });
 
 // Computed selector for modal class names
-const modalClassSelector = computed<{ modalClass: string; overlayClass: string; contentClass: string }>({
+const modalClassSelector = computed<{
+  modalClass: string;
+  overlayClass: string;
+  contentClass: string;
+}>({
   get: (get) => {
     const data = get(modalDataAtom);
     const visible = get(modalVisibleAtom);
