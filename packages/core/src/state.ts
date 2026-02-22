@@ -10,173 +10,61 @@ import { createId } from './id';
  * @param id - The storage identifier
  * @returns Empty string (placeholder implementation)
  */
-export const store = (): string => {
+export const snapshot = (): string => {
   return '';
 };
+export type ValueGetter<T> = (state: Value<T>) => T;
+export type ComputedFn<T> = (get: ValueGetter<unknown>, prev?: T) => T;
 
-/**
- * State restoration function (placeholder implementation)
- * @param id - The storage identifier to restore from
- * @returns Empty string (placeholder implementation)
- */
-export const restore = (id?: string): string => {
-  return id || '';
-};
-
+export interface Value<T> {
+  value?: T | ComputedFn<T>;
+  id: string;
+  name?: string;
+}
+export interface Node<T> extends Value<T> {
+  type: string;
+}
 /**
  * Base interface for all Relax state values
  * @template T - The type of the state value
  */
-export interface RelaxValue<T> {
-  id: string;
-  value?: T;
-  key?: string;
-}
+export interface State<T> extends Value<T> {}
 
 /**
  * Core state node class managing effects and lifecycle
  * @template T - The type of the state value
  */
-export class RelaxValueNode<T> implements RelaxValue<T> {
+export class StateNode<T> implements Node<T> {
   readonly id: string;
-  readonly key?: string;
-  value?: T;
-  private readonly effects: Set<(state: RelaxValue<T>) => void> = new Set();
+  readonly name?: string;
+  readonly value?: T;
+  readonly type: string = 'state';
 
   constructor({
-    type,
     value,
-    key,
+    name,
+    type,
   }: {
-    type: string;
     value?: T;
-    key?: string;
+    name?: string;
+    type: string;
   }) {
     this.id = createId(type);
-    this.key = key;
+    this.name = name;
     this.value = value;
-    RELAX_NODES.set(this.id, this as unknown as RelaxValueNode<unknown>);
-  }
-
-  /**
-   * Clean up the node and remove it from the global registry
-   */
-  dispose() {
-    this.effects.clear();
-    RELAX_NODES.delete(this.id);
-  }
-
-  /**
-   * Add an effect to this node
-   * @param fn - The effect function to execute when state changes
-   * @returns A function to remove this effect
-   */
-  effect(fn: (state: RelaxValue<T>) => void) {
-    const remove = () => this.removeEffect(fn);
-    this.effects.add(fn);
-    return remove;
-  }
-
-  /**
-   * Remove an effect from this node
-   * @param fn - The effect function to remove
-   */
-  removeEffect(fn: (state: RelaxValue<T>) => void) {
-    this.effects.delete(fn);
-  }
-
-  /**
-   * Trigger all effects for this node
-   */
-  dispatchEffect() {
-    this.effects.forEach((fn) => {
-      fn(this);
-    });
+    RELAX_NODES.set(this.id, this as unknown as StateNode<unknown>);
   }
 }
 
 /**
  * Global registry of all Relax state nodes
  */
-export const RELAX_NODES = new Map<string, RelaxValueNode<unknown>>();
+export const RELAX_NODES = new Map<string, Value<unknown>>();
 
-/**
- * Get the current value of a state
- * @template T - The type of the state
- * @param state - The state to get the value from
- * @returns The current value or undefined
- */
-export const get = <T extends RelaxValue<unknown>>(state: T): T['value'] | undefined => {
-  return RELAX_NODES.get(state.id)?.value;
-};
-
-/**
- * Type alias for the get function
- */
-export type RelaxStateGetter = typeof get;
-
-/**
- * Set the value of a state and trigger effects
- * @template T - The type of the state value
- * @param state - The state to update
- * @param value - The new value
- */
-export const set = <T>(state: RelaxValue<T>, value: T) => {
-  const relaxNode = RELAX_NODES.get(state.id) as RelaxValueNode<T>;
-  if (relaxNode) {
-    relaxNode.value = value;
-    dispatchEffect(state);
-  }
-};
-
-/**
- * Dispose of a state node and clean up resources
- * @param state - The state to dispose
- */
-export const dispose = <T>(state: RelaxValue<T>) => {
-  const relaxNode = RELAX_NODES.get(state.id) as RelaxValueNode<T>;
-  if (relaxNode) {
-    relaxNode.dispose();
-  }
-};
-
-/**
- * Add an effect to a state that will be triggered when the state changes
- * @param state - The state to add the effect to
- * @param fn - The effect function
- * @returns A function to remove the effect
- */
-export const effect = <T>(state: RelaxValue<T>, fn: (state: RelaxValue<T>) => void) => {
-  const relaxNode = RELAX_NODES.get(state.id) as RelaxValueNode<T>;
-  if (relaxNode) {
-    const remove = () => {
-      removeEffect(state, fn);
-    };
-    relaxNode.effect(fn);
-    return remove;
-  }
-  return () => {};
-};
-
-/**
- * Remove an effect from a state
- * @param state - The state to remove the effect from
- * @param fn - The effect function to remove
- */
-export const removeEffect = <T>(state: RelaxValue<T>, fn: (state: RelaxValue<T>) => void) => {
-  const relaxNode = RELAX_NODES.get(state.id) as RelaxValueNode<T>;
-  if (relaxNode) {
-    relaxNode.removeEffect(fn);
-  }
-};
-
-/**
- * Internal function to dispatch effects for a state
- * @param state - The state to dispatch effects for
- */
-const dispatchEffect = <T>(state: RelaxValue<T>) => {
-  const relaxNode = RELAX_NODES.get(state.id) as RelaxValueNode<T>;
-  if (relaxNode) {
-    relaxNode.dispatchEffect();
-  }
+export const state = <T>(defaultValue: T, name?: string): State<T> => {
+  const state = new StateNode({ value: defaultValue, name, type: 'state' });
+  return {
+    id: state.id,
+    name,
+  } as State<T>;
 };

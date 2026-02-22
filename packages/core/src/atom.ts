@@ -36,7 +36,6 @@ class RelaxStateNode<T, R = T> extends RelaxValueNode<T> implements RelaxState<T
     this.type = 'atom';
 
     this.updateFn = get;
-    this.value = defaultValue;
   }
 }
 

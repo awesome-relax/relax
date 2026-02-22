@@ -8,13 +8,10 @@ export { atom, type RelaxState, update } from './atom';
 // Export event system
 export { createEvent } from './event';
 // Export selector functionality
-export { type SelectorValue, selector } from './selector';
+export { type Computed, computed } from './computed';
 // Export core state management utilities
 export {
-  dispose,
-  effect,
-  get,
-  type RelaxStateGetter,
-  type RelaxValue,
-  removeEffect,
+  type State,
+  state,
 } from './state';
+export { createStore, DefultStore } from './store';
