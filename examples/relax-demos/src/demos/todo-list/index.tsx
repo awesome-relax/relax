@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import './index.scss';
-import { state, computed, DefultStore } from '@relax-state/core';
+import { computed, DefultStore, state } from '@relax-state/core';
 import { useRelaxValue } from '@relax-state/react';
 import { useTranslation } from '../../i18n/useTranslation';
 

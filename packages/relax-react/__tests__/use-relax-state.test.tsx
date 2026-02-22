@@ -1,11 +1,10 @@
-import { createStore, state } from '@relax-state/core';
-import { renderHook, act } from '@testing-library/react';
+import { state } from '@relax-state/core';
+import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { useRelaxState } from '../src/hooks';
 
 describe('useRelaxState', () => {
   it('should read and update value via setter', () => {
-    const store = createStore();
     const count = state<number>(0);
 
     const { result } = renderHook(() => useRelaxState(count));
@@ -20,7 +19,6 @@ describe('useRelaxState', () => {
   });
 
   it('should handle multiple state atoms', () => {
-    const store = createStore();
     const count1 = state<number>(0);
     const count2 = state<number>(10);
 

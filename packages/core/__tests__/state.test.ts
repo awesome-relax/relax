@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { state, DefultStore } from '../src/index';
+import { DefultStore, state } from '../src/index';
 
 describe('state core', () => {
   it('set/get should work and trigger effects', () => {

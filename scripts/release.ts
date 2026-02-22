@@ -1,4 +1,4 @@
-import { spawnSync, type SpawnSyncOptions } from 'child_process';
+import { type SpawnSyncOptions, spawnSync } from 'child_process';
 
 type RunOptions = SpawnSyncOptions & { allowFail?: boolean };
 
@@ -19,7 +19,7 @@ const runCapture = (command: string, args: string[]) => {
   if (result.status !== 0) {
     const code = result.status == null ? 1 : result.status;
     throw new Error(
-      `Command failed: ${command} ${args.join(' ')} (exit ${code})\n${result.stderr ?? ''}`,
+      `Command failed: ${command} ${args.join(' ')} (exit ${code})\n${result.stderr ?? ''}`
     );
   }
   return result.stdout ?? '';
@@ -31,7 +31,7 @@ const hasPendingReleases = (): boolean => {
     const parsed = JSON.parse(stdout) as { releases?: unknown[] };
     const count = Array.isArray(parsed.releases) ? parsed.releases.length : 0;
     return count > 0;
-  } catch (err) {
+  } catch (_err) {
     // If status fails (e.g. first run), fall back to attempting versioning
     return true;
   }
@@ -65,5 +65,3 @@ const release = () => {
 if (require.main === module) {
   release();
 }
-
-

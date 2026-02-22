@@ -2,9 +2,9 @@
  * Derived state management - Computed state system for Relax framework
  * Provides ability to create computed states that automatically track dependencies and respond to changes
  */
-import { RELAX_NODES, type Value, type Node, type ComputedFn } from './state';
 
 import { createId } from './id';
+import { type ComputedFn, type Node, RELAX_NODES, type Value } from './state';
 
 /**
  * Selector state interface with type information

@@ -1,4 +1,4 @@
-import { state, computed, DefultStore } from '@relax-state/core';
+import { computed, DefultStore, state } from '@relax-state/core';
 import { useRelaxValue } from '@relax-state/react';
 
 // Supported languages
