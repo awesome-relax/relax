@@ -3,7 +3,7 @@
  * Provides reactive integration between Relax state and React components
  */
 
-import { effect, get, type RelaxValue } from '@relax/core';
+import { effect, get, type RelaxValue } from '@relaxjs/core';
 import { useEffect, useState } from 'react';
 
 /**

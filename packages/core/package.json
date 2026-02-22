@@ -1,5 +1,5 @@
 {
-  "name": "@relax/core",
+  "name": "@relaxjs/core",
   "version": "0.0.1",
   "description": "relax core",
   "main": "src/index.ts",
