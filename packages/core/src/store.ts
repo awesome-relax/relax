@@ -1,10 +1,10 @@
-import type { Computed } from './computed';
 import { type Value, type State, type ComputedFn, RELAX_NODES } from './state';
 
 export class Store {
   private values: Map<string, unknown> = new Map();
   private effects: Map<string, Set<(value: { oldValue: unknown; newValue: unknown }) => void>> =
     new Map();
+  private computing: Set<string> = new Set(); // 跟踪正在计算的状态，用于检测循环依赖
   get<T>(state: Value<T>): T {
     const id = state.id;
     const newValue = this.values.get(id);
@@ -17,22 +17,34 @@ export class Store {
     }
     const defaultValue = stateNode.value;
     if (typeof defaultValue === 'function') {
-      const get = (state: Value<unknown>) => {
-        this.effect(state, () => {
-          // update computed value when dependency changes
-          const computedState = RELAX_NODES.get(id) as unknown as Computed<unknown>;
-          const oldValue = this.values.get(id);
-          if (computedState) {
-            const newComputedValue = (defaultValue as ComputedFn<unknown>)(get);
-            this.values.set(id, newComputedValue);
-            this.dispatchEffects(state, oldValue, this.values.get(id) as unknown); // dispatch effects for the computed state when dependencies change
-          }
+      // 检测循环依赖
+      if (this.computing.has(id)) {
+        throw new Error(`Circular dependency detected for state with id ${id}`);
+      }
+
+      this.computing.add(id);
+      try {
+        const dependencies = new Set<Value<unknown>>();
+        const get = (state: Value<unknown>) => {
+          // 记录依赖关系
+          dependencies.add(state);
+          return this.get(state);
+        };
+        const computedValue = (defaultValue as ComputedFn<T>)(get);
+        this.values.set(id, computedValue);
+
+        // 在计算完成后，为所有依赖项添加 effect 监听器
+        dependencies.forEach((dep) => {
+          this.effect(dep, () => {
+            // 当依赖项发生变化时，清除当前 computed 值的缓存
+            this.values.delete(id);
+          });
         });
-        return this.get(state);
-      };
-      const computedValue = (defaultValue as ComputedFn<T>)(get);
-      this.values.set(id, computedValue);
-      return computedValue;
+
+        return computedValue;
+      } finally {
+        this.computing.delete(id); // 确保在计算完成后移除跟踪
+      }
     }
     return defaultValue as T;
   }
