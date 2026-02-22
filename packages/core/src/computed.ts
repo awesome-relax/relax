@@ -22,7 +22,7 @@ class ComputedNode<T> implements Node<T> {
   readonly type: 'computed' = 'computed';
   readonly id: string;
   readonly name?: string;
-  readonly computeFn: ComputedFn<T>;
+  readonly value: ComputedFn<T>;
 
   constructor({
     get,
@@ -31,7 +31,7 @@ class ComputedNode<T> implements Node<T> {
     get: ComputedFn<T>;
     name?: string;
   }) {
-    this.computeFn = get;
+    this.value = get;
     this.name = name;
     this.id = createId('computed');
     RELAX_NODES.set(this.id, this as unknown as Node<unknown>);
@@ -51,5 +51,6 @@ export const computed = <T>({ get, name }: { get: ComputedFn<T>; name?: string }
   return {
     id: compotedNode.id,
     type: 'computed',
+    name,
   } as Computed<T>;
 };

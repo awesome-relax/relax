@@ -15,7 +15,7 @@ export class Store {
     if (!stateNode) {
       throw new Error(`State with id ${id} not found`);
     }
-    const defaultValue = state.value;
+    const defaultValue = stateNode.value;
     if (typeof defaultValue === 'function') {
       const get = (state: Value<unknown>) => {
         this.effect(state, () => {
