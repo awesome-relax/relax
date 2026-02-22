@@ -7,6 +7,7 @@
   "module": "src/index.ts",
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
+    "access": "public",
     "main": "./dist/cjs/index.js",
     "module": "./dist/esm/index.js",
     "exports": {
