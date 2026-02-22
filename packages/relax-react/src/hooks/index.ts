@@ -13,11 +13,10 @@ import { useRelaxStore } from '../provider';
  * @param state - The Relax state to subscribe to
  * @returns The current value of the state
  */
-export const useRelaxValue = <T>(state: Value<T>) => {
-  // Initialize state with current value from Relax
+export const useRelaxValue = <T>(state: Value<T>): T => {
   const store = useRelaxStore();
   const [value, setValue] = useState<T>(() => store.get(state) as T);
-  console.log('useRelaxValue: subscribing to state1', value);
+
   useEffect(() => {
     // Subscribe to state changes and update local state
     return store.effect(state, () => {
@@ -29,8 +28,13 @@ export const useRelaxValue = <T>(state: Value<T>) => {
   return value;
 };
 
-export const useRelaxState = <T>(state: State<T>) => {
-  // Initialize state with current value from Relax
+/**
+ * Hook for read-write subscription to Relax state
+ * @template T - The type of the state value
+ * @param state - The Relax state to subscribe to
+ * @returns A tuple containing the current value and a setter function
+ */
+export const useRelaxState = <T>(state: State<T>): readonly [T, (value: T) => void] => {
   const store = useRelaxStore();
   const [value, setValue] = useState<T>(() => store.get(state) as T);
 
