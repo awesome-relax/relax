@@ -1,7 +1,7 @@
 {
-  "name": "@relaxjs/core",
+  "name": "@relax-state/core",
   "version": "0.0.1",
-  "description": "relax core",
+  "description": "relax-state core",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "module": "src/index.ts",

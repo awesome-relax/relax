@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './index.scss';
-import { atom, get, selector, update } from '@relaxjs/core';
-import { useRelaxValue } from '@relaxjs/react';
+import { atom, get, selector, update } from '@relax-state/core';
+import { useRelaxValue } from '@relax-state/react';
 import { useTranslation } from '../../i18n/useTranslation';
 
 interface Todo {

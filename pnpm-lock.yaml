@@ -56,10 +56,10 @@ importers:
 
   examples/relax-demos:
     dependencies:
-      '@relaxjs/core':
+      '@relax-state/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@relaxjs/react':
+      '@relax-state/react':
         specifier: workspace:*
         version: link:../../packages/relax-react
       react:
@@ -114,7 +114,7 @@ importers:
 
   packages/relax-react:
     dependencies:
-      '@relaxjs/core':
+      '@relax-state/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:

@@ -10,8 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@relaxjs/core": "workspace:*",
-    "@relaxjs/react": "workspace:*",
+    "@relax-state/core": "workspace:*",
+    "@relax-state/react": "workspace:*",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

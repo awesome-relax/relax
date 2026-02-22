@@ -1,7 +1,7 @@
 {
-  "name": "@relaxjs/react",
+  "name": "@relax-state/react",
   "version": "0.0.1",
-  "description": "relax react integration",
+  "description": "relax-state react integration",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "module": "src/index.ts",
@@ -29,7 +29,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@relaxjs/core": "workspace:*"
+    "@relax-state/core": "workspace:*"
   },
   "peerDependencies": {
     "react": "^18.0.0"

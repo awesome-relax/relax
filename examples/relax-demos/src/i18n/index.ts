@@ -1,5 +1,5 @@
-import { atom, selector, update } from '@relaxjs/core';
-import { useRelaxValue } from '@relaxjs/react';
+import { atom, selector, update } from '@relax-state/core';
+import { useRelaxValue } from '@relax-state/react';
 
 // Supported languages
 export type Language = 'en' | 'zh';

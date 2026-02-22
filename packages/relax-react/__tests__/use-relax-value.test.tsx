@@ -1,4 +1,4 @@
-import { atom, update } from '@relaxjs/core';
+import { atom, update } from '@relax-state/core';
 import { act, renderHook } from '@testing-library/react';
 
 import { describe, expect, it } from 'vitest';

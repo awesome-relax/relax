@@ -1,4 +1,4 @@
-import { useRelaxValue } from '@relaxjs/react';
+import { useRelaxValue } from '@relax-state/react';
 import { languageAtom } from './index';
 import { allTranslations } from './translations';
 

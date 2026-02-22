@@ -1,6 +1,6 @@
 import './index.scss';
-import { atom, selector, update } from '@relaxjs/core';
-import { useRelaxValue } from '@relaxjs/react';
+import { atom, selector, update } from '@relax-state/core';
+import { useRelaxValue } from '@relax-state/react';
 import { useTranslation } from '../../i18n/useTranslation';
 
 interface ModalData {
