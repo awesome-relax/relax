@@ -1,5 +1,6 @@
 node_modules
 dist
+coverage
 .vscode
 .idea
 .env
@@ -7,3 +8,4 @@ dist
 .env.development.local
 .env.test.local
 .env.production.local
+.claude

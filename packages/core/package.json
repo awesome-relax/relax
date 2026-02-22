@@ -1,12 +1,13 @@
 {
-  "name": "@relax/core",
+  "name": "@relax-state/core",
   "version": "0.0.1",
-  "description": "relax core",
+  "description": "relax-state core",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "module": "src/index.ts",
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
+    "access": "public",
     "main": "./dist/cjs/index.js",
     "module": "./dist/esm/index.js",
     "exports": {

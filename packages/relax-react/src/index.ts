@@ -1,9 +1,11 @@
 /**
- * Main entry point for @relax/react package
+ * Main entry point for @relax-state/react package
  * Provides React hooks for using Relax state management in React components
  */
 
 // Re-export all core functionality for convenience
-export * from '@relax/core';
+export * from '@relax-state/core';
 // Export React hooks for state management
-export { useRelaxValue } from './hooks';
+export { useRelaxValue, useRelaxState } from './hooks';
+
+export { RelaxProvider } from './provider';

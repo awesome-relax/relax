@@ -10,10 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@relax/core": "workspace:*",
-    "@relax/react": "workspace:*",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "@relax-state/core": "workspace:*",
+    "@relax-state/react": "workspace:*",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
