@@ -24,8 +24,8 @@ export class Store {
 
       this.computing.add(id);
       try {
-        const dependencies = new Set<Value<unknown>>();
-        const get = (state: Value<unknown>) => {
+        const dependencies = new Set<Value<any>>();
+        const get = <U>(state: Value<U>): U => {
           // 记录依赖关系
           dependencies.add(state);
           return this.get(state);

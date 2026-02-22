@@ -1,4 +1,4 @@
-import { atom, get, selector, update } from '@relax-state/core';
+import { state, computed, DefultStore } from '@relax-state/core';
 import { useRelaxValue } from '@relax-state/react';
 import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from '../../i18n/useTranslation';
@@ -12,70 +12,70 @@ interface ListItem {
 }
 
 // 定义状态
-const listAtom = selector<{ items: ListItem[]; hasMore: boolean }>({
-  get: async (get, prev) => {
-    // 模拟网络延迟
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+const listAtom = state<ListItem[]>([]);
+const loadingAtom = state<boolean>(false);
+const pageAtom = state<number>(1);
 
-    const currentPage = get(pageAtom) ?? 0;
-    if (currentPage === 0) {
-      return {
-        items: [],
-        hasMore: true,
-      };
-    }
-    // 模拟API数据
-    const mockData: ListItem[] = Array.from({ length: 10 }, (_, index) => {
-      const id = (currentPage - 1) * 10 + index + 1;
-      return {
-        id,
-        title: `title ${id}`,
-        description: `description ${id}`,
-        image: `https://picsum.photos/300/200?random=${id}`,
-      };
-    });
-    return {
-      items: [...(prev?.items || []), ...mockData],
-      hasMore: currentPage < 5,
-    };
+// 计算状态：判断是否还有更多数据
+const hasMoreAtom = computed<boolean>({
+  get: (get) => {
+    const currentPage = get(pageAtom);
+    return currentPage < 5;
   },
 });
 
-const loadingAtom = atom<boolean>({
-  defaultValue: false,
-});
-
-const pageAtom = atom<number>({
-  defaultValue: 1,
-});
+// 模拟API请求
+const fetchMockData = (page: number): ListItem[] => {
+  return Array.from({ length: 10 }, (_, index) => {
+    const id = (page - 1) * 10 + index + 1;
+    return {
+      id,
+      title: `title ${id}`,
+      description: `description ${id}`,
+      image: `https://picsum.photos/300/200?random=${id}`,
+    };
+  });
+};
 
 export const InfiniteScroll = () => {
   const t = useTranslation();
-  const { items, hasMore } = useRelaxValue(listAtom);
+  const items = useRelaxValue(listAtom);
   const loading = useRelaxValue(loadingAtom);
+  const hasMore = useRelaxValue(hasMoreAtom);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   // 模拟API请求
-  const fetchList = useCallback(async () => {
-    const currentLoading = get(loadingAtom);
-
-    if (currentLoading || !hasMore) {
+  const fetchList = useCallback(() => {
+    if (loading || !hasMore) {
       return;
     }
 
-    update(pageAtom, (prev) => (prev ?? 0) + 1);
-  }, [hasMore]);
+    DefultStore.set(loadingAtom, true);
+
+    // 模拟网络延迟
+    setTimeout(() => {
+      const currentPage = DefultStore.get(pageAtom);
+      const newData = fetchMockData(currentPage);
+      const currentItems = DefultStore.get(listAtom);
+      DefultStore.set(listAtom, [...currentItems, ...newData]);
+      DefultStore.set(pageAtom, currentPage + 1);
+      DefultStore.set(loadingAtom, false);
+    }, 1000);
+  }, [loading, hasMore]);
 
   // 重置列表
   const resetList = () => {
-    update(pageAtom, 0);
+    DefultStore.set(pageAtom, 1);
+    DefultStore.set(listAtom, []);
   };
 
   useEffect(() => {
-    fetchList();
-  }, [fetchList]);
+    if (items.length === 0 && !loading) {
+      fetchList();
+    }
+  }, [items.length, loading, fetchList]);
 
   useEffect(() => {
     const options = {

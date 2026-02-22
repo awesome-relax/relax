@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import './index.scss';
-import { atom, get, selector, update } from '@relax-state/core';
+import { state, computed, DefultStore } from '@relax-state/core';
 import { useRelaxValue } from '@relax-state/react';
 import { useTranslation } from '../../i18n/useTranslation';
 
@@ -10,18 +10,15 @@ interface Todo {
   completed: boolean;
 }
 
-// Fix: Use new atom API with object parameter format
-const todoListAtom = atom<Todo[]>({
-  defaultValue: [],
-});
-update(todoListAtom, []);
+// Use new state API
+const todoListAtom = state<Todo[]>([]);
 
-// Fix: Use new selector API with object parameter format
-const completedCountSelector = selector({
+// Use new computed API
+const completedCountSelector = computed<number>({
   get: (get) => get(todoListAtom)?.filter((todo) => todo.completed).length || 0,
 });
 
-const pendingCountSelector = selector({
+const pendingCountSelector = computed<number>({
   get: (get) => get(todoListAtom)?.filter((todo) => !todo.completed).length || 0,
 });
 
@@ -43,14 +40,14 @@ export const TodoList = () => {
       completed: false,
     };
 
-    const currentTodos = get(todoListAtom) || [];
-    update(todoListAtom, [...currentTodos, newTodo]);
+    const currentTodos = DefultStore.get(todoListAtom) || [];
+    DefultStore.set(todoListAtom, [...currentTodos, newTodo]);
     setInputValue('');
   };
 
   const toggleTodo = (id: string) => {
-    const currentTodos = get(todoListAtom) || [];
-    update(
+    const currentTodos = DefultStore.get(todoListAtom) || [];
+    DefultStore.set(
       todoListAtom,
       currentTodos.map((todo: Todo) =>
         todo.id === id ? { ...todo, completed: !todo.completed } : todo
@@ -59,8 +56,8 @@ export const TodoList = () => {
   };
 
   const removeTodo = (id: string) => {
-    const currentTodos = get(todoListAtom) || [];
-    update(
+    const currentTodos = DefultStore.get(todoListAtom) || [];
+    DefultStore.set(
       todoListAtom,
       currentTodos.filter((todo: Todo) => todo.id !== id)
     );

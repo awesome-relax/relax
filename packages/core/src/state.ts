@@ -13,8 +13,8 @@ import { createId } from './id';
 export const snapshot = (): string => {
   return '';
 };
-export type ValueGetter<T> = (state: Value<T>) => T;
-export type ComputedFn<T> = (get: ValueGetter<unknown>, prev?: T) => T;
+export type ValueGetter = <U>(state: Value<U>) => U;
+export type ComputedFn<T> = (get: ValueGetter, prev?: T) => T;
 
 export interface Value<T> {
   value?: T | ComputedFn<T>;

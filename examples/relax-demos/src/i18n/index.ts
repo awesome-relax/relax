@@ -1,22 +1,20 @@
-import { atom, selector, update } from '@relax-state/core';
+import { state, computed, DefultStore } from '@relax-state/core';
 import { useRelaxValue } from '@relax-state/react';
 
 // Supported languages
 export type Language = 'en' | 'zh';
 
 // Language state
-export const languageAtom = atom<Language>({
-  defaultValue: 'en',
-});
+export const languageAtom = state<Language>('en');
 
 // Language selector
-export const currentLanguageSelector = selector({
+export const currentLanguageSelector = computed<Language>({
   get: (get) => get(languageAtom),
 });
 
 // Language switcher
 export const switchLanguage = (lang: Language) => {
-  update(languageAtom, lang);
+  DefultStore.set(languageAtom, lang);
 };
 
 // Hook for getting current language

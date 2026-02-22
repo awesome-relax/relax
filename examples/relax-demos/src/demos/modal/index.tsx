@@ -1,5 +1,5 @@
 import './index.scss';
-import { atom, selector, update } from '@relax-state/core';
+import { state, computed, DefultStore } from '@relax-state/core';
 import { useRelaxValue } from '@relax-state/react';
 import { useTranslation } from '../../i18n/useTranslation';
 
@@ -10,21 +10,17 @@ interface ModalData {
 }
 
 // Modal visibility state
-const modalVisibleAtom = atom<boolean>({
-  defaultValue: false,
-});
+const modalVisibleAtom = state<boolean>(false);
 
 // Modal data state
-const modalDataAtom = atom<ModalData>({
-  defaultValue: {
-    title: '',
-    content: '',
-    type: 'info',
-  },
+const modalDataAtom = state<ModalData>({
+  title: '',
+  content: '',
+  type: 'info',
 });
 
 // Computed selector for modal class names
-const modalClassSelector = selector({
+const modalClassSelector = computed<{ modalClass: string; overlayClass: string; contentClass: string }>({
   get: (get) => {
     const data = get(modalDataAtom);
     const visible = get(modalVisibleAtom);
@@ -38,7 +34,7 @@ const modalClassSelector = selector({
 });
 
 // Computed selector for modal icon
-const modalIconSelector = selector({
+const modalIconSelector = computed<string>({
   get: (get) => {
     const data = get(modalDataAtom);
     const icons = {
@@ -60,16 +56,16 @@ export const ModalDemo = () => {
   const openModal = (type: ModalData['type']) => {
     const titleKey = `${type}Title`;
     const contentKey = `${type}Content`;
-    update(modalDataAtom, {
+    DefultStore.set(modalDataAtom, {
       title: t(titleKey),
       content: t(contentKey),
       type,
     });
-    update(modalVisibleAtom, true);
+    DefultStore.set(modalVisibleAtom, true);
   };
   console.log('modalData', modalData, overlayClass, contentClass);
   const closeModal = () => {
-    update(modalVisibleAtom, false);
+    DefultStore.set(modalVisibleAtom, false);
   };
 
   const handleOverlayClick = (e: React.MouseEvent) => {
