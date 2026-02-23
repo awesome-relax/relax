@@ -1,5 +1,11 @@
 # @relax-state/core
 
+## 0.0.8
+
+### Patch Changes
+
+- export changeset from hooks
+
 ## 0.0.7
 
 ### Patch Changes

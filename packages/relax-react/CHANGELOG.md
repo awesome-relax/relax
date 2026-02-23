@@ -1,5 +1,13 @@
 # @relax-state/react
 
+## 0.0.8
+
+### Patch Changes
+
+- export changeset from hooks
+- Updated dependencies
+  - @relax-state/core@0.0.8
+
 ## 0.0.7
 
 ### Patch Changes
