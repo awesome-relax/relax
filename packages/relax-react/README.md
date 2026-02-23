@@ -55,6 +55,35 @@ function DoubleCounter() {
 }
 ```
 
+### useActions
+
+A hook for using actions with full type safety. The returned tuple preserves each action's payload and return types.
+
+```typescript
+import { action } from '@relax/core';
+import { useActions } from '@relax/react';
+
+// Define actions with types
+const addTodoAction = action((store, payload: { text: string }) => {
+  return { id: Date.now().toString(), text: payload.text, completed: false };
+}, { name: 'addTodo' });
+
+const toggleTodoAction = action((store, payload: { id: string }) => {
+  // toggle logic
+}, { name: 'toggleTodo' });
+
+function TodoList() {
+  // Full type safety - each action keeps its payload and return types
+  const [addTodo, toggleTodo] = useActions([addTodoAction, toggleTodoAction]);
+
+  // addTodo: (payload: { text: string }) => { id: string; text: string; completed: boolean }
+  const newTodo = addTodo({ text: 'Buy milk' });
+
+  // toggleTodo: (payload: { id: string }) => void
+  toggleTodo({ id: newTodo.id });
+}
+```
+
 ## 🧩 API Reference
 
 ### `useRelaxState<T, R>(relaxState: RelaxState<T, R>): [T, (value: R) => void]`
@@ -62,6 +91,10 @@ function DoubleCounter() {
 
 ### `useRelaxValue<T>(state: RelaxValue<T>): T`
 - Subscribes to a Relax atom or selector and returns its current value (read-only).
+
+### `useActions<P extends Action[], R>(actions: P): R`
+- Returns a tuple of action functions with full type inference for payload and return types.
+- Each action in the tuple preserves its original payload type P and return type R.
 
 ## 🏗️ Project Structure
 
@@ -118,6 +151,7 @@ packages/relax-react/
 1. **React Hooks**
    - `useRelaxState`: Use and update Relax state in React components
    - `useRelaxValue`: Read-only subscription to Relax state
+   - `useActions`: Use actions with full type inference
 
 2. **TypeScript Support**
    - All APIs are fully typed

@@ -1,5 +1,16 @@
 # @relax-state/core
 
+## 0.0.3
+
+### Patch Changes
+
+- feat(core): add Action system with plugin support
+
+  - Add Plugin interface with onBefore/onAfter/onError lifecycle hooks
+  - Add Action type and action factory for creating dispatchable actions
+  - Extend Store to support plugins via constructor and use() method
+  - Add dispatch function to execute actions with plugin hooks
+
 ## 0.0.2
 
 ### Patch Changes
