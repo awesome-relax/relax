@@ -1,5 +1,13 @@
 # @relax/demos
 
+## 0.0.3
+
+### Patch Changes
+
+- Updated dependencies [ea87ab6]
+  - @relax-state/react@0.0.4
+  - @relax-state/core@0.0.4
+
 ## 0.0.2
 
 ### Patch Changes
