@@ -1,5 +1,13 @@
 # @relax-state/react
 
+## 0.0.5
+
+### Patch Changes
+
+- d270e56: rebuild
+- Updated dependencies [d270e56]
+  - @relax-state/core@0.0.5
+
 ## 0.0.4
 
 ### Patch Changes
