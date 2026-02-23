@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, beforeEach } from 'vitest';
 import { computed, createStore, state } from '../src/index';
+import { type Plugin } from '../src/plugin';
 
 describe('store', () => {
   it('should create a store instance', () => {
@@ -79,5 +80,35 @@ describe('store', () => {
     expect(store.get(count)).toBe(0);
     store.set(count, 0);
     expect(effectCount).toBe(0); // Should not trigger effect
+  });
+});
+
+describe('Store Plugins', () => {
+  let store: ReturnType<typeof createStore>;
+
+  beforeEach(() => {
+    store = createStore();
+  });
+
+  it('should accept plugins in constructor', () => {
+    const testPlugin: Plugin = { name: 'test' };
+    const storeWithPlugin = createStore({ plugins: [testPlugin] });
+
+    expect(storeWithPlugin.getPlugins()).toHaveLength(1);
+    expect(storeWithPlugin.getPlugins()[0].name).toBe('test');
+  });
+
+  it('should allow adding plugins via use()', () => {
+    const plugin1: Plugin = { name: 'plugin1' };
+    const plugin2: Plugin = { name: 'plugin2' };
+
+    store.use(plugin1);
+    store.use(plugin2);
+
+    expect(store.getPlugins()).toHaveLength(2);
+  });
+
+  it('should return empty array when no plugins', () => {
+    expect(store.getPlugins()).toEqual([]);
   });
 });

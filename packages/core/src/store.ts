@@ -1,4 +1,13 @@
 import { type ComputedFn, RELAX_NODES, type State, type Value } from './state';
+import { type Plugin } from './plugin';
+
+/**
+ * Store configuration options
+ */
+export interface StoreOptions {
+  /** Initial plugins to register with the store */
+  plugins?: Plugin[];
+}
 
 /**
  * Store class for managing reactive state
@@ -12,6 +21,12 @@ export class Store {
     new Map();
   /** Tracks currently computing states to detect circular dependencies */
   private computing: Set<string> = new Set();
+  /** Store plugins */
+  private plugins: Plugin[] = [];
+
+  constructor(options: StoreOptions = {}) {
+    this.plugins = options.plugins || [];
+  }
 
   /**
    * Gets the value of a state
@@ -117,14 +132,31 @@ export class Store {
       fn({ oldValue, newValue });
     });
   }
+
+  /**
+   * Gets all registered plugins
+   * @returns Array of plugins
+   */
+  getPlugins(): Plugin[] {
+    return this.plugins;
+  }
+
+  /**
+   * Adds a plugin to the store
+   * @param plugin - Plugin to add
+   */
+  use(plugin: Plugin): void {
+    this.plugins.push(plugin);
+  }
 }
 
 /**
  * Creates a new Store instance
+ * @param options - Optional store configuration
  * @returns A new Store instance
  */
-export const createStore = () => {
-  return new Store();
+export const createStore = (options?: StoreOptions): Store => {
+  return new Store(options);
 };
 
 /**
