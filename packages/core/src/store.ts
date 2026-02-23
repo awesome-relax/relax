@@ -1,6 +1,6 @@
 /**
  * Store module for Relax framework
- * Provides the Store class for managing reactive state, effects, and plugins
+ * Provides the Store class for managing reactive state and effects
  * @module store
  * @example
  * ```typescript
@@ -12,22 +12,6 @@
  */
 
 import { type ComputedFn, RELAX_NODES, type State, type Value } from './state';
-import { type Plugin } from './plugin';
-
-/**
- * Store configuration options
- * Used to configure the store during initialization
- * @example
- * ```typescript
- * const store = createStore({
- *   plugins: [loggerPlugin, analyticsPlugin]
- * });
- * ```
- */
-export interface StoreOptions {
-  /** Initial plugins to register with the store */
-  plugins?: Plugin[];
-}
 
 /**
  * Store class for managing reactive state
@@ -36,7 +20,6 @@ export interface StoreOptions {
  * The Store is the central hub for state management in Relax. It:
  * - Stores state values and computed values
  * - Manages effects (subscriptions to state changes)
- * - Supports plugins for extending functionality
  * - Handles circular dependency detection for computed values
  *
  * @example
@@ -58,15 +41,6 @@ export interface StoreOptions {
  * store.effect(count, ({ oldValue, newValue }) => {
  *   console.log(`Count changed from ${oldValue} to ${newValue}`);
  * });
- *
- * // Using plugins
- * const loggerPlugin: Plugin = {
- *   name: 'logger',
- *   onBefore: (ctx) => console.log(`[Action] ${ctx.type.name}`)
- * };
- *
- * const storeWithPlugin = createStore({ plugins: [loggerPlugin] });
- * storeWithPlugin.use(anotherPlugin);
  * ```
  */
 export class Store {
@@ -77,15 +51,12 @@ export class Store {
     new Map();
   /** Tracks currently computing states to detect circular dependencies */
   private computing: Set<string> = new Set();
-  /** Store plugins for extending functionality */
-  private plugins: Plugin[] = [];
 
   /**
    * Creates a new Store instance
-   * @param options - Store configuration options including initial plugins
    */
-  constructor(options: StoreOptions = {}) {
-    this.plugins = options.plugins || [];
+  constructor() {
+    // No initialization needed
   }
 
   /**
@@ -253,64 +224,25 @@ export class Store {
       fn({ oldValue, newValue });
     });
   }
-
-  /**
-   * Gets all registered plugins
-   * Useful for debugging or plugin management
-   *
-   * @returns Array of registered plugins
-   * @example
-   * ```typescript
-   * const plugins = store.getPlugins();
-   * console.log(`Store has ${plugins.length} plugins`);
-   * ```
-   */
-  getPlugins(): Plugin[] {
-    return this.plugins;
-  }
-
-  /**
-   * Adds a plugin to the store
-   * Plugins can extend store functionality and hook into action lifecycle
-   *
-   * @param plugin - Plugin to add
-   * @example
-   * ```typescript
-   * const loggerPlugin: Plugin = {
-   *   name: 'logger',
-   *   onBefore: (ctx) => console.log(`[START] ${ctx.type.name}`),
-   *   onAfter: (ctx, result) => console.log(`[END] ${ctx.type.name}`, result),
-   *   onError: (ctx, error) => console.error(`[ERROR] ${ctx.type.name}`, error)
-   * };
-   *
-   * store.use(loggerPlugin);
-   * ```
-   */
-  use(plugin: Plugin): void {
-    this.plugins.push(plugin);
-  }
 }
 
 /**
  * Creates a new Store instance
  * This is the recommended way to create stores in Relax
  *
- * @param options - Optional store configuration including initial plugins
  * @returns A new Store instance
  *
  * @example
  * ```typescript
  * // Basic store
  * const store = createStore();
- *
- * // Store with plugins
- * const storeWithPlugins = createStore({
- *   plugins: [loggerPlugin, analyticsPlugin]
- * });
+ * const count = state(0);
+ * store.set(count, 5);
+ * console.log(store.get(count)); // 5
  * ```
  */
-export const createStore = (options?: StoreOptions): Store => {
-  return new Store(options);
+export const createStore = (): Store => {
+  return new Store();
 };
 
 /**

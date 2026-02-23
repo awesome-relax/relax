@@ -1,18 +1,24 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { state, action, dispatch, createStore } from '../src/index';
-import { type Plugin } from '../src/plugin';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { action, addPlugin, clearPlugins, createStore, state } from '../src/index';
+import type { Plugin } from '../src/plugin';
 
 describe('Action Integration', () => {
+  beforeEach(() => {
+    clearPlugins();
+  });
+
   it('should complete full workflow with plugins', () => {
-    // 1. Create store with global plugin
+    // 1. Add global plugin
     const log: string[] = [];
     const loggerPlugin: Plugin = {
       name: 'logger',
-      onBefore: (ctx) => log.push(`[START] ${ctx.type.name}`),
-      onAfter: (ctx, result) => log.push(`[END] ${ctx.type.name}`)
+      onBefore: (ctx) => log.push(`[START] ${ctx.name}`),
+      onAfter: (ctx) => log.push(`[END] ${ctx.name}`),
     };
 
-    const store = createStore({ plugins: [loggerPlugin] });
+    addPlugin(loggerPlugin);
+
+    const store = createStore();
 
     // 2. Create state
     const countState = state(0, 'count');
@@ -26,16 +32,13 @@ describe('Action Integration', () => {
       { name: 'increment' }
     );
 
-    const getCountAction = action(
-      (s) => s.get(countState),
-      { name: 'getCount' }
-    );
+    const getCountAction = action((s) => s.get(countState), { name: 'getCount' });
 
-    // 4. Dispatch actions
-    dispatch(incrementAction, { store }, { delta: 10 });
-    dispatch(incrementAction, { store }, { delta: 5 });
+    // 4. Call actions directly (no dispatch needed)
+    incrementAction(store, { delta: 10 });
+    incrementAction(store, { delta: 5 });
 
-    const count = dispatch(getCountAction, { store }, null);
+    const count = getCountAction(store, null);
 
     // 5. Verify
     expect(count).toBe(15);
@@ -45,7 +48,7 @@ describe('Action Integration', () => {
       '[START] increment',
       '[END] increment',
       '[START] getCount',
-      '[END] getCount'
+      '[END] getCount',
     ]);
   });
 
@@ -53,18 +56,17 @@ describe('Action Integration', () => {
     const store = createStore();
 
     const actionLog: string[] = [];
-    const trackedAction = action(
-      () => {},
-      {
-        name: 'tracked',
-        plugins: [{
+    const trackedAction = action(() => {}, {
+      name: 'tracked',
+      plugins: [
+        {
           name: 'tracker',
-          onBefore: (ctx) => actionLog.push('tracked-start')
-        }]
-      }
-    );
+          onBefore: () => actionLog.push('tracked-start'),
+        },
+      ],
+    });
 
-    dispatch(trackedAction, { store }, null);
+    trackedAction(store, null);
     expect(actionLog).toEqual(['tracked-start']);
   });
 
@@ -72,16 +74,21 @@ describe('Action Integration', () => {
     const errorLog: Error[] = [];
     const errorPlugin: Plugin = {
       name: 'error-logger',
-      onError: (ctx, error) => errorLog.push(error)
+      onError: (ctx, error) => errorLog.push(error),
     };
 
-    const store = createStore({ plugins: [errorPlugin] });
+    addPlugin(errorPlugin);
 
-    const failingAction = action(() => {
-      throw new Error('Expected error');
-    }, { name: 'fail' });
+    const store = createStore();
 
-    expect(() => dispatch(failingAction, { store }, null)).toThrow();
+    const failingAction = action(
+      () => {
+        throw new Error('Expected error');
+      },
+      { name: 'fail' }
+    );
+
+    expect(() => failingAction(store, null)).toThrow();
     expect(errorLog).toHaveLength(1);
     expect(errorLog[0].message).toBe('Expected error');
   });

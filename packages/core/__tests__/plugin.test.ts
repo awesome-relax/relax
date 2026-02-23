@@ -1,13 +1,19 @@
-import { describe, it, expect } from 'vitest';
-import { type Plugin } from '../src/plugin';
+import { describe, expect, it } from 'vitest';
+import type { Plugin } from '../src/plugin';
 
 describe('Plugin', () => {
   it('should have correct interface', () => {
     const plugin: Plugin = {
       name: 'test-plugin',
-      onBefore: (ctx) => { console.log('before', ctx.type); },
-      onAfter: (ctx, result) => { console.log('after', result); },
-      onError: (ctx, error) => { console.log('error', error); }
+      onBefore: (ctx) => {
+        console.log('before', ctx.type);
+      },
+      onAfter: (ctx, result) => {
+        console.log('after', result);
+      },
+      onError: (ctx, error) => {
+        console.log('error', error);
+      },
     };
 
     expect(plugin.name).toBe('test-plugin');
@@ -18,7 +24,7 @@ describe('Plugin', () => {
 
   it('should allow optional hooks', () => {
     const minimalPlugin: Plugin = {
-      name: 'minimal'
+      name: 'minimal',
     };
 
     expect(minimalPlugin.name).toBe('minimal');

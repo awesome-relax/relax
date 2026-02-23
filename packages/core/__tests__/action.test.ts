@@ -1,22 +1,17 @@
-import { describe, it, expect } from 'vitest';
-import { action, type Action } from '../src/action';
+import { describe, expect, it } from 'vitest';
+import { type Action, action } from '../src/action';
 
 describe('Action', () => {
   it('should create action with handler', () => {
-    const testAction: Action<{ delta: number }, void> = action(
-      (store, payload) => {
-        // handler will be tested in dispatch
-      }
-    );
+    const testAction: Action<{ delta: number }, void> = action((store, payload) => {
+      // handler will be tested in dispatch
+    });
 
     expect(typeof testAction.handler).toBe('function');
   });
 
   it('should create action with options', () => {
-    const testAction = action(
-      (store, payload) => {},
-      { name: 'Decrement Action' }
-    );
+    const testAction = action((store, payload) => {}, { name: 'Decrement Action' });
 
     expect(testAction.name).toBe('Decrement Action');
   });

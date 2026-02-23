@@ -9,8 +9,8 @@
  */
 
 import type { Action } from './action';
+import { type ActionContext, getPlugins, type Plugin } from './plugin';
 import type { Store } from './store';
-import type { Plugin, ActionContext } from './plugin';
 
 /**
  * Dispatch options
@@ -61,9 +61,9 @@ export interface DispatchOptions {
  * // With plugins
  * const loggerPlugin: Plugin = {
  *   name: 'logger',
- *   onBefore: (ctx) => console.log(`[START] ${ctx.type.name}`, ctx.payload),
- *   onAfter: (ctx, result) => console.log(`[END] ${ctx.type.name}`, result),
- *   onError: (ctx, error) => console.error(`[ERROR] ${ctx.type.name}`, error)
+ *   onBefore: (ctx) => console.log(`[START] ${ctx.name}`, ctx.payload),
+ *   onAfter: (ctx, result) => console.log(`[END] ${ctx.name}`, result),
+ *   onError: (ctx, error) => console.error(`[ERROR] ${ctx.name}`, error)
  * };
  *
  * store.use(loggerPlugin);
@@ -81,17 +81,13 @@ export interface DispatchOptions {
  * console.log(user); // User object or undefined
  * ```
  */
-export const dispatch = <P, R>(
-  action: Action<P, R>,
-  options: DispatchOptions,
-  payload: P
-): R => {
+export const dispatch = <P, R>(action: Action<P, R>, options: DispatchOptions, payload: P): R => {
   const { store } = options;
   const { handler, plugins: actionPlugins = [] } = action;
 
-  // Merge store plugins and action-level plugins
-  const storePlugins = store.getPlugins();
-  const allPlugins: Plugin[] = [...storePlugins, ...actionPlugins];
+  // Merge global plugins and action-level plugins
+  const globalPlugins = getPlugins();
+  const allPlugins: Plugin[] = [...globalPlugins, ...actionPlugins];
 
   const context: ActionContext<P, R> = { type: action, payload };
 

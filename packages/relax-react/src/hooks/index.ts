@@ -3,8 +3,8 @@
  * Provides reactive integration between Relax state and React components
  */
 
-import type { State, Value } from '@relax-state/core';
-import { useCallback, useEffect, useState } from 'react';
+import { type Action, dispatch, type State, type Value } from '@relax-state/core';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRelaxStore } from '../provider';
 
 /**
@@ -54,4 +54,11 @@ export const useRelaxState = <T>(state: State<T>): readonly [T, (value: T) => vo
   );
 
   return [value, setState] as const;
+};
+
+export const useDispatch = (actions: Action[]) => {
+  const store = useRelaxStore();
+  return useMemo(() => {
+    return actions.map((action) => (payload?: any) => dispatch(action, { store }, payload));
+  }, [actions, store]);
 };

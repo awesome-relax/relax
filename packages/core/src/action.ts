@@ -1,6 +1,6 @@
 /**
  * Action system for Relax framework
- * Provides action factory for creating dispatchable actions with handlers
+ * Provides action factory for creating callable actions with plugin support
  * @module action
  * @example
  * ```typescript
@@ -8,11 +8,14 @@
  *   const current = store.get(countState);
  *   store.set(countState, current + payload.delta);
  * }, { name: 'increment' });
+ *
+ * // Call directly
+ * increment(store, { delta: 5 });
  * ```
  */
 
-import { type Store } from './store';
-import { type Plugin } from './plugin';
+import { type ActionContext, getPlugins, type Plugin } from './plugin';
+import type { Store } from './store';
 
 /**
  * Action handler function type
@@ -29,14 +32,11 @@ import { type Plugin } from './plugin';
  * };
  * ```
  */
-export type ActionHandler<P, R, S extends Store = Store> = (
-  store: S,
-  payload: P
-) => R;
+export type ActionHandler<P, R, S extends Store = Store> = (store: S, payload: P) => R;
 
 /**
  * Action interface
- * Represents a dispatchable action with its handler and metadata
+ * Represents a callable action with its handler and metadata
  * @template P - Payload type
  * @template R - Return type
  * @example
@@ -44,6 +44,9 @@ export type ActionHandler<P, R, S extends Store = Store> = (
  * const myAction: Action<{ id: string }, User> = action((store, payload) => {
  *   return store.get(users).find(u => u.id === payload.id);
  * }, { name: 'getUser' });
+ *
+ * // Call directly
+ * const user = myAction(store, { id: '123' });
  * ```
  */
 export interface Action<P = any, R = any> {
@@ -55,6 +58,14 @@ export interface Action<P = any, R = any> {
 
   /** Optional plugins specific to this action for custom behavior */
   plugins?: Plugin[];
+
+  /**
+   * Call the action directly
+   * @param store - The store instance
+   * @param payload - The payload to pass to the handler
+   * @returns The result from the action handler
+   */
+  (store: Store, payload: P): R;
 }
 
 /**
@@ -78,12 +89,12 @@ export interface ActionOptions {
 
 /**
  * Creates a new Action
- * Actions are the primary way to modify state in Relax. They encapsulate business logic
- * and can be dispatched to perform operations on the store.
+ * Actions are callable objects that encapsulate business logic with plugin support.
+ * They can be invoked directly like: action(store, payload)
  *
  * @param handler - Action handler function that implements the business logic
  * @param options - Optional action configuration (name, plugins)
- * @returns Action object that can be dispatched
+ * @returns Callable Action object
  *
  * @template P - Payload type for the action
  * @template R - Return type of the action
@@ -95,7 +106,8 @@ export interface ActionOptions {
  *   (store, payload: { amount: number }) => {
  *     const current = store.get(countState);
  *     store.set(countState, current + payload.amount);
- *   }
+ *   },
+ *   { name: 'increment' }
  * );
  *
  * // Action with return value and options
@@ -110,18 +122,75 @@ export interface ActionOptions {
  *   }
  * );
  *
- * // Dispatching actions
- * dispatch(increment, { store }, { amount: 5 });
- * const user = await dispatch(fetchUser, { store }, '123');
+ * // Call directly (no dispatch needed)
+ * increment(store, { amount: 5 });
+ * const user = await fetchUser(store, '123');
  * ```
  */
 export const action = <P, R>(
   handler: ActionHandler<P, R>,
   options?: ActionOptions
 ): Action<P, R> => {
-  return {
+  const name = options?.name;
+  const actionPlugins = options?.plugins || [];
+
+  // Create action context
+  const actionObj = {
     handler,
-    name: options?.name,
-    plugins: options?.plugins
+    name,
+    plugins: actionPlugins,
   };
+
+  // Create the callable function
+  const actionFn = (store: Store, payload: P): R => {
+    // Get global plugins
+    const globalPlugins = getPlugins();
+    const allPlugins: Plugin[] = [...globalPlugins, ...actionPlugins];
+
+    const context: ActionContext<P, R> = { name, type: actionObj, payload };
+
+    // 1. Execute onBefore hooks
+    for (const plugin of allPlugins) {
+      plugin.onBefore?.(context);
+    }
+
+    let result: R;
+    let error: Error | null = null;
+
+    // 2. Execute action handler
+    try {
+      result = handler(store, payload);
+    } catch (e) {
+      error = e as Error;
+
+      // 3. Execute onError hooks
+      for (const plugin of allPlugins) {
+        plugin.onError?.(context, error);
+      }
+
+      throw e;
+    }
+
+    // 4. Execute onAfter hooks (only if no error)
+    for (const plugin of allPlugins) {
+      plugin.onAfter?.(context, result);
+    }
+
+    return result;
+  };
+
+  // Use Object.defineProperty to attach metadata
+  Object.defineProperty(actionFn, 'handler', {
+    value: handler,
+    writable: false,
+    configurable: false,
+  });
+  Object.defineProperty(actionFn, 'name', { value: name, writable: false, configurable: false });
+  Object.defineProperty(actionFn, 'plugins', {
+    value: actionPlugins,
+    writable: false,
+    configurable: false,
+  });
+
+  return actionFn as Action<P, R>;
 };

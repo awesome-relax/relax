@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import './index.scss';
-import { action, computed, createStore, dispatch, Plugin, state } from '@relax-state/core';
+import { action, addPlugin, computed, createStore, type Plugin, state } from '@relax-state/core';
 import { useRelaxValue } from '@relax-state/react';
 import { useTranslation } from '../../i18n/useTranslation';
 
@@ -10,18 +10,20 @@ interface Todo {
   completed: boolean;
 }
 
-// 创建一个带日志功能的 store
+// 创建一个全局日志插件
 const loggerPlugin: Plugin = {
   name: 'todo-logger',
   onBefore: (ctx) => {
-    console.log(`[Action] ${ctx.type.name}`, ctx.payload);
+    console.log(`[Action] ${ctx.name}`, ctx.payload);
   },
   onAfter: (ctx) => {
-    console.log(`[Action] ${ctx.type.name} completed`);
+    console.log(`[Action] ${ctx.name} completed`);
   },
 };
 
-const todoStore = createStore({ plugins: [loggerPlugin] });
+addPlugin(loggerPlugin);
+
+const todoStore = createStore();
 
 // 状态定义
 const todoListAtom = state<Todo[]>([]);
@@ -63,7 +65,10 @@ const toggleTodoAction = action(
 const removeTodoAction = action(
   (store, payload: { id: string }) => {
     const currentTodos = store.get(todoListAtom) || [];
-    store.set(todoListAtom, currentTodos.filter((todo: Todo) => todo.id !== payload.id));
+    store.set(
+      todoListAtom,
+      currentTodos.filter((todo: Todo) => todo.id !== payload.id)
+    );
   },
   { name: 'todos/remove' }
 );
@@ -80,16 +85,16 @@ export const TodoList = () => {
       return;
     }
 
-    dispatch(addTodoAction, { store: todoStore }, { text: inputValue.trim() });
+    addTodoAction(todoStore, { text: inputValue.trim() });
     setInputValue('');
   };
 
   const toggleTodo = (id: string) => {
-    dispatch(toggleTodoAction, { store: todoStore }, { id });
+    toggleTodoAction(todoStore, { id });
   };
 
   const removeTodo = (id: string) => {
-    dispatch(removeTodoAction, { store: todoStore }, { id });
+    removeTodoAction(todoStore, { id });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

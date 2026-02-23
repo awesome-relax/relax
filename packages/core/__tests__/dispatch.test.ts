@@ -1,26 +1,26 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { dispatch, type DispatchOptions } from '../src/dispatch';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { action } from '../src/action';
+import { type DispatchOptions, dispatch } from '../src/dispatch';
+import type { Plugin } from '../src/plugin';
+import { addPlugin, clearPlugins } from '../src/plugin';
 import { state } from '../src/state';
 import { createStore, type Store } from '../src/store';
-import { type Plugin } from '../src/plugin';
 
 describe('Dispatch', () => {
   let store: Store;
   let countState: ReturnType<typeof state<number>>;
 
   beforeEach(() => {
+    clearPlugins();
     store = createStore();
     countState = state(0, 'count');
   });
 
   it('should execute action handler with payload', () => {
-    const incrementAction = action(
-      (s, payload: { delta: number }) => {
-        const current = s.get(countState);
-        s.set(countState, current + payload.delta);
-      }
-    );
+    const incrementAction = action((s, payload: { delta: number }) => {
+      const current = s.get(countState);
+      s.set(countState, current + payload.delta);
+    });
 
     const options: DispatchOptions = { store };
     dispatch(incrementAction, options, { delta: 5 });
@@ -29,11 +29,9 @@ describe('Dispatch', () => {
   });
 
   it('should return result from action handler', () => {
-    const addAction = action(
-      (s, payload: { a: number; b: number }) => {
-        return payload.a + payload.b;
-      }
-    );
+    const addAction = action((s, payload: { a: number; b: number }) => {
+      return payload.a + payload.b;
+    });
 
     const options: DispatchOptions = { store };
     const result = dispatch(addAction, options, { a: 3, b: 7 });
@@ -48,10 +46,10 @@ describe('Dispatch', () => {
       onBefore: (ctx) => {
         beforeCalled = true;
         expect(ctx.type.name).toBeUndefined();
-      }
+      },
     };
 
-    store.use(plugin);
+    addPlugin(plugin);
 
     const testAction = action((s) => {});
     dispatch(testAction, { store }, null);
@@ -65,10 +63,10 @@ describe('Dispatch', () => {
       name: 'test',
       onBefore: (ctx) => {
         capturedType = ctx.type.name;
-      }
+      },
     };
 
-    store.use(plugin);
+    addPlugin(plugin);
 
     const testAction = action((s) => {}, { name: 'my-action' });
     dispatch(testAction, { store }, null);
@@ -84,10 +82,10 @@ describe('Dispatch', () => {
       onAfter: (ctx, result) => {
         afterCalled = true;
         resultValue = result;
-      }
+      },
     };
 
-    store.use(plugin);
+    addPlugin(plugin);
 
     const testAction = action(() => 42);
     dispatch(testAction, { store }, null);
@@ -104,10 +102,10 @@ describe('Dispatch', () => {
       onError: (ctx, error) => {
         errorCalled = true;
         capturedError = error;
-      }
+      },
     };
 
-    store.use(plugin);
+    addPlugin(plugin);
 
     const testAction = action(() => {
       throw new Error('Test error');
@@ -122,7 +120,9 @@ describe('Dispatch', () => {
     let actionPluginCalled = false;
     const actionPlugin: Plugin = {
       name: 'action-plugin',
-      onBefore: () => { actionPluginCalled = true; }
+      onBefore: () => {
+        actionPluginCalled = true;
+      },
     };
 
     const testAction = action(() => {}, { plugins: [actionPlugin] });
@@ -131,24 +131,28 @@ describe('Dispatch', () => {
     expect(actionPluginCalled).toBe(true);
   });
 
-  it('should merge store plugins and action plugins', () => {
-    let storePluginCalled = false;
+  it('should merge global plugins and action plugins', () => {
+    let globalPluginCalled = false;
     let actionPluginCalled = false;
 
-    const storePlugin: Plugin = {
-      name: 'store-plugin',
-      onBefore: () => { storePluginCalled = true; }
+    const globalPlugin: Plugin = {
+      name: 'global-plugin',
+      onBefore: () => {
+        globalPluginCalled = true;
+      },
     };
     const actionPlugin: Plugin = {
       name: 'action-plugin',
-      onBefore: () => { actionPluginCalled = true; }
+      onBefore: () => {
+        actionPluginCalled = true;
+      },
     };
 
-    store.use(storePlugin);
+    addPlugin(globalPlugin);
     const testAction = action(() => {}, { plugins: [actionPlugin] });
     dispatch(testAction, { store }, null);
 
-    expect(storePluginCalled).toBe(true);
+    expect(globalPluginCalled).toBe(true);
     expect(actionPluginCalled).toBe(true);
   });
 });
