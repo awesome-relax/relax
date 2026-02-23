@@ -15,7 +15,7 @@ export {
   addPlugin,
   clearPlugins,
   getPlugins,
-  Plugin,
+  type Plugin,
   removePlugin,
 } from './plugin';
 // Export core state management utilities
