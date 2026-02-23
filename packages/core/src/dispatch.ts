@@ -61,9 +61,9 @@ export interface DispatchOptions {
  * // With plugins
  * const loggerPlugin: Plugin = {
  *   name: 'logger',
- *   onBefore: (ctx) => console.log(`[START] ${ctx.type}`),
- *   onAfter: (ctx, result) => console.log(`[END] ${ctx.type}`, result),
- *   onError: (ctx, error) => console.error(`[ERROR] ${ctx.type}`, error)
+ *   onBefore: (ctx) => console.log(`[START] ${ctx.type.name}`, ctx.payload),
+ *   onAfter: (ctx, result) => console.log(`[END] ${ctx.type.name}`, result),
+ *   onError: (ctx, error) => console.error(`[ERROR] ${ctx.type.name}`, error)
  * };
  *
  * store.use(loggerPlugin);
@@ -87,13 +87,13 @@ export const dispatch = <P, R>(
   payload: P
 ): R => {
   const { store } = options;
-  const { handler, plugins: actionPlugins = [], name } = action;
+  const { handler, plugins: actionPlugins = [] } = action;
 
   // Merge store plugins and action-level plugins
   const storePlugins = store.getPlugins();
   const allPlugins: Plugin[] = [...storePlugins, ...actionPlugins];
 
-  const context: ActionContext = { type: name || 'anonymous', payload };
+  const context: ActionContext<P, R> = { type: action, payload };
 
   // 1. Execute onBefore hooks
   for (const plugin of allPlugins) {

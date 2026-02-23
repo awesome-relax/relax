@@ -8,8 +8,8 @@ describe('Action Integration', () => {
     const log: string[] = [];
     const loggerPlugin: Plugin = {
       name: 'logger',
-      onBefore: (ctx) => log.push(`[START] ${ctx.type}`),
-      onAfter: (ctx, result) => log.push(`[END] ${ctx.type}`)
+      onBefore: (ctx) => log.push(`[START] ${ctx.type.name}`),
+      onAfter: (ctx, result) => log.push(`[END] ${ctx.type.name}`)
     };
 
     const store = createStore({ plugins: [loggerPlugin] });

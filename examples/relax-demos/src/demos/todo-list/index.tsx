@@ -14,10 +14,10 @@ interface Todo {
 const loggerPlugin: Plugin = {
   name: 'todo-logger',
   onBefore: (ctx) => {
-    console.log(`[Action] ${ctx.type}`, ctx.payload);
+    console.log(`[Action] ${ctx.type.name}`, ctx.payload);
   },
   onAfter: (ctx) => {
-    console.log(`[Action] ${ctx.type} completed`);
+    console.log(`[Action] ${ctx.type.name} completed`);
   },
 };
 

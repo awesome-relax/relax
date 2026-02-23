@@ -62,7 +62,7 @@ export interface StoreOptions {
  * // Using plugins
  * const loggerPlugin: Plugin = {
  *   name: 'logger',
- *   onBefore: (ctx) => console.log(`[Action] ${ctx.type}`)
+ *   onBefore: (ctx) => console.log(`[Action] ${ctx.type.name}`)
  * };
  *
  * const storeWithPlugin = createStore({ plugins: [loggerPlugin] });
@@ -278,9 +278,9 @@ export class Store {
    * ```typescript
    * const loggerPlugin: Plugin = {
    *   name: 'logger',
-   *   onBefore: (ctx) => console.log(`[START] ${ctx.type}`),
-   *   onAfter: (ctx, result) => console.log(`[END] ${ctx.type}`, result),
-   *   onError: (ctx, error) => console.error(`[ERROR] ${ctx.type}`, error)
+   *   onBefore: (ctx) => console.log(`[START] ${ctx.type.name}`),
+   *   onAfter: (ctx, result) => console.log(`[END] ${ctx.type.name}`, result),
+   *   onError: (ctx, error) => console.error(`[ERROR] ${ctx.type.name}`, error)
    * };
    *
    * store.use(loggerPlugin);

@@ -156,16 +156,16 @@ import { Plugin, action, dispatch, createStore } from '@relax-state/core';
 // Create a logging plugin
 const loggerPlugin: Plugin = {
   name: 'logger',
-  onBefore: (ctx) => console.log(`[START] ${ctx.type}`, ctx.payload),
-  onAfter: (ctx, result) => console.log(`[END] ${ctx.type}`, result),
-  onError: (ctx, error) => console.error(`[ERROR] ${ctx.type}`, error)
+  onBefore: (ctx) => console.log(`[START] ${ctx.type.name}`, ctx.payload),
+  onAfter: (ctx, result) => console.log(`[END] ${ctx.type.name}`, result),
+  onError: (ctx, error) => console.error(`[ERROR] ${ctx.type.name}`, error)
 };
 
 // Create a metrics plugin
 const metricsPlugin: Plugin = {
   name: 'metrics',
-  onBefore: (ctx) => metrics.recordStart(ctx.type),
-  onAfter: (ctx) => metrics.recordEnd(ctx.type)
+  onBefore: (ctx) => metrics.recordStart(ctx.type.name),
+  onAfter: (ctx) => metrics.recordEnd(ctx.type.name)
 };
 
 // Use plugins at store level

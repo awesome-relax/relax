@@ -47,7 +47,7 @@ describe('Dispatch', () => {
       name: 'test',
       onBefore: (ctx) => {
         beforeCalled = true;
-        expect(ctx.type).toBe('anonymous');
+        expect(ctx.type.name).toBeUndefined();
       }
     };
 
@@ -64,7 +64,7 @@ describe('Dispatch', () => {
     const plugin: Plugin = {
       name: 'test',
       onBefore: (ctx) => {
-        capturedType = ctx.type;
+        capturedType = ctx.type.name;
       }
     };
 

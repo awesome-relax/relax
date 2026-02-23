@@ -4,13 +4,15 @@
  * @module plugin
  */
 
+import { Action } from './action';
+
 /**
  * Action context passed to plugin hooks
  * Contains information about the action being executed
  */
-export interface ActionContext {
+export interface ActionContext<T = any, R = any> {
   /** Unique action type identifier */
-  type: string;
+  type: Action<T, R>;
   /** Payload passed to the action */
   payload: unknown;
 }
@@ -23,9 +25,9 @@ export interface ActionContext {
  * ```typescript
  * const loggerPlugin: Plugin = {
  *   name: 'logger',
- *   onBefore: (ctx) => console.log(`[START] ${ctx.type}`, ctx.payload),
- *   onAfter: (ctx, result) => console.log(`[END] ${ctx.type}`, result),
- *   onError: (ctx, error) => console.error(`[ERROR] ${ctx.type}`, error)
+ *   onBefore: (ctx) => console.log(`[START] ${ctx.type.name}`, ctx.payload),
+ *   onAfter: (ctx, result) => console.log(`[END] ${ctx.type.name}`, result),
+ *   onError: (ctx, error) => console.error(`[ERROR] ${ctx.type.name}`, error)
  * };
  * ```
  */
