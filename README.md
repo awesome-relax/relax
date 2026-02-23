@@ -18,10 +18,10 @@ See [`packages/core/README.md`](./packages/core/README.md) for full API and usag
 
 ---
 
-### [`@relax/react`](./packages/relax-react)
+### [`@relax-state/react`](./packages/relax-react)
 
 - **React hooks for Relax state**
-- `useRelaxState` – use and update Relax atoms/selectors in React
+- `useRelaxState` – use and update Relax state in React
 - `useRelaxValue` – read-only subscription to Relax state
 - TypeScript-first, minimal API
 
@@ -29,13 +29,19 @@ See [`packages/relax-react/README.md`](./packages/relax-react/README.md) for det
 
 ---
 
-## 🧑‍💻 Example Project
+## 🧑‍💻 Example Projects
 
 ### [`examples/relax-demos`](./examples/relax-demos)
 
 - Vite + React + TypeScript template
 - Includes a modern TodoList demo using Relax state and hooks
 - Ready for rapid prototyping and testing
+
+### [`examples/basic-actions`](./examples/basic-actions)
+
+- Complete demonstration of the Action system
+- Shows plugin usage for logging and analytics
+- Standalone TypeScript example
 
 ---
 
@@ -72,8 +78,8 @@ See [`packages/relax-react/README.md`](./packages/relax-react/README.md) for det
 
 ## 📚 Documentation
 
-- [@relax/core README](./packages/core/README.md)
-- [@relax/react README](./packages/relax-react/README.md)
+- [@relax-state/core README](./packages/core/README.md)
+- [@relax-state/react README](./packages/relax-react/README.md)
 - Example usage in [`examples/relax-demos`](./examples/relax-demos)
 
 ---

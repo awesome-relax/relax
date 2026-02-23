@@ -1,8 +1,28 @@
+/**
+ * Store module for Relax framework
+ * Provides the Store class for managing reactive state, effects, and plugins
+ * @module store
+ * @example
+ * ```typescript
+ * const store = createStore();
+ * const count = state(0);
+ * store.set(count, 5);
+ * console.log(store.get(count)); // 5
+ * ```
+ */
+
 import { type ComputedFn, RELAX_NODES, type State, type Value } from './state';
 import { type Plugin } from './plugin';
 
 /**
  * Store configuration options
+ * Used to configure the store during initialization
+ * @example
+ * ```typescript
+ * const store = createStore({
+ *   plugins: [loggerPlugin, analyticsPlugin]
+ * });
+ * ```
  */
 export interface StoreOptions {
   /** Initial plugins to register with the store */
@@ -12,6 +32,42 @@ export interface StoreOptions {
 /**
  * Store class for managing reactive state
  * Provides methods for getting, setting state values and managing side effects
+ *
+ * The Store is the central hub for state management in Relax. It:
+ * - Stores state values and computed values
+ * - Manages effects (subscriptions to state changes)
+ * - Supports plugins for extending functionality
+ * - Handles circular dependency detection for computed values
+ *
+ * @example
+ * ```typescript
+ * // Create a store
+ * const store = createStore();
+ *
+ * // Create some state
+ * const count = state(0);
+ * const name = state('Relax');
+ *
+ * // Read state
+ * console.log(store.get(count)); // 0
+ *
+ * // Update state
+ * store.set(count, 5);
+ *
+ * // Add an effect
+ * store.effect(count, ({ oldValue, newValue }) => {
+ *   console.log(`Count changed from ${oldValue} to ${newValue}`);
+ * });
+ *
+ * // Using plugins
+ * const loggerPlugin: Plugin = {
+ *   name: 'logger',
+ *   onBefore: (ctx) => console.log(`[Action] ${ctx.type}`)
+ * };
+ *
+ * const storeWithPlugin = createStore({ plugins: [loggerPlugin] });
+ * storeWithPlugin.use(anotherPlugin);
+ * ```
  */
 export class Store {
   /** Internal storage for state values */
@@ -21,18 +77,36 @@ export class Store {
     new Map();
   /** Tracks currently computing states to detect circular dependencies */
   private computing: Set<string> = new Set();
-  /** Store plugins */
+  /** Store plugins for extending functionality */
   private plugins: Plugin[] = [];
 
+  /**
+   * Creates a new Store instance
+   * @param options - Store configuration options including initial plugins
+   */
   constructor(options: StoreOptions = {}) {
     this.plugins = options.plugins || [];
   }
 
   /**
    * Gets the value of a state
+   * For computed values, this will compute and cache the value, tracking dependencies
+   *
    * @param state - The state to get value from
    * @returns The current value of the state
-   * @throws Error if state is not found
+   * @throws Error if state is not found in the registry
+   *
+   * @example
+   * ```typescript
+   * const count = state(0);
+   * console.log(store.get(count)); // 0
+   *
+   * // With computed
+   * const doubled = computed({
+   *   get: (get) => get(count) * 2
+   * });
+   * console.log(store.get(doubled)); // 0
+   * ```
    */
   get<T>(state: Value<T>): T {
     const id = state.id;
@@ -81,8 +155,20 @@ export class Store {
 
   /**
    * Sets the value of a state and triggers all registered effects
+   * If the new value is the same as the current value, no effects will be triggered
+   *
    * @param state - The state to set value to
    * @param value - The new value
+   *
+   * @example
+   * ```typescript
+   * const count = state(0);
+   * store.set(count, 5);
+   * console.log(store.get(count)); // 5
+   *
+   * // Setting same value doesn't trigger effects
+   * store.set(count, 5); // No effect triggered
+   * ```
    */
   set<T>(state: State<T>, value: T) {
     const oldValue = this.get(state);
@@ -95,9 +181,30 @@ export class Store {
 
   /**
    * Registers an effect callback that will be called when state changes
-   * @param state - The state to watch
+   * Effects are useful for side effects like logging, syncing with external systems, etc.
+   *
+   * @param state - The state to watch for changes
    * @param fn - Callback function that receives old and new values
    * @returns A function to unsubscribe the effect
+   *
+   * @example
+   * ```typescript
+   * const count = state(0);
+   *
+   * // Add an effect
+   * const unsubscribe = store.effect(count, ({ oldValue, newValue }) => {
+   *   console.log(`Count changed from ${oldValue} to ${newValue}`);
+   * });
+   *
+   * // Update state - effect will be called
+   * store.set(count, 5); // Logs: "Count changed from 0 to 5"
+   *
+   * // Unsubscribe when no longer needed
+   * unsubscribe();
+   *
+   * // This update won't trigger the effect
+   * store.set(count, 10); // No log
+   * ```
    */
   effect<T>(state: Value<T>, fn: (value: { oldValue: T; newValue: T }) => void) {
     const id = state.id;
@@ -112,8 +219,20 @@ export class Store {
 
   /**
    * Removes an effect callback from a state
+   * This is called automatically when unsubscribing from an effect
+   *
    * @param state - The state to remove effect from
    * @param fn - The effect callback to remove
+   *
+   * @example
+   * ```typescript
+   * const effectFn = ({ oldValue, newValue }) => {
+   *   console.log(`Changed: ${oldValue} -> ${newValue}`);
+   * };
+   *
+   * store.effect(count, effectFn);
+   * store.clearEffect(count, effectFn); // Remove the effect
+   * ```
    */
   clearEffect<T>(state: Value<T>, fn: (value: { oldValue: T; newValue: T }) => void) {
     const id = state.id;
@@ -122,6 +241,8 @@ export class Store {
 
   /**
    * Dispatches effects for a state change
+   * Called internally when state changes to notify all registered effects
+   *
    * @param state - The state that changed
    * @param oldValue - The previous value
    * @param newValue - The new value
@@ -135,7 +256,14 @@ export class Store {
 
   /**
    * Gets all registered plugins
-   * @returns Array of plugins
+   * Useful for debugging or plugin management
+   *
+   * @returns Array of registered plugins
+   * @example
+   * ```typescript
+   * const plugins = store.getPlugins();
+   * console.log(`Store has ${plugins.length} plugins`);
+   * ```
    */
   getPlugins(): Plugin[] {
     return this.plugins;
@@ -143,7 +271,20 @@ export class Store {
 
   /**
    * Adds a plugin to the store
+   * Plugins can extend store functionality and hook into action lifecycle
+   *
    * @param plugin - Plugin to add
+   * @example
+   * ```typescript
+   * const loggerPlugin: Plugin = {
+   *   name: 'logger',
+   *   onBefore: (ctx) => console.log(`[START] ${ctx.type}`),
+   *   onAfter: (ctx, result) => console.log(`[END] ${ctx.type}`, result),
+   *   onError: (ctx, error) => console.error(`[ERROR] ${ctx.type}`, error)
+   * };
+   *
+   * store.use(loggerPlugin);
+   * ```
    */
   use(plugin: Plugin): void {
     this.plugins.push(plugin);
@@ -152,8 +293,21 @@ export class Store {
 
 /**
  * Creates a new Store instance
- * @param options - Optional store configuration
+ * This is the recommended way to create stores in Relax
+ *
+ * @param options - Optional store configuration including initial plugins
  * @returns A new Store instance
+ *
+ * @example
+ * ```typescript
+ * // Basic store
+ * const store = createStore();
+ *
+ * // Store with plugins
+ * const storeWithPlugins = createStore({
+ *   plugins: [loggerPlugin, analyticsPlugin]
+ * });
+ * ```
  */
 export const createStore = (options?: StoreOptions): Store => {
   return new Store(options);
@@ -161,5 +315,20 @@ export const createStore = (options?: StoreOptions): Store => {
 
 /**
  * Default store instance for the Relax framework
+ * This is a singleton store that can be used when you don't need multiple stores
+ * @deprecated Consider creating your own store instance with createStore() for better isolation
+ * @example
+ * ```typescript
+ * // Using the default store
+ * import { DefultStore } from '@relax-state/core';
+ *
+ * const count = state(0);
+ * DefultStore.set(count, 5);
+ * console.log(DefultStore.get(count)); // 5
+ *
+ * // Recommended: create your own store
+ * const store = createStore();
+ * store.set(count, 10);
+ * ```
  */
 export const DefultStore = createStore();

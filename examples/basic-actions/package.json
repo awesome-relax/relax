@@ -1,0 +1,17 @@
+{
+  "name": "@relax-state/examples-basic-actions",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Basic actions example for Relax state management",
+  "main": "index.ts",
+  "scripts": {
+    "start": "tsx index.ts",
+    "dev": "tsx watch index.ts"
+  },
+  "dependencies": {
+    "@relax-state/core": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0"
+  }
+}

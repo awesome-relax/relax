@@ -1,14 +1,25 @@
 /**
  * Dispatch system for Relax framework
  * Provides function to execute actions with plugin lifecycle hooks
+ * @module dispatch
+ * @example
+ * ```typescript
+ * const result = dispatch(myAction, { store }, { id: '123' });
+ * ```
  */
 
-import { type Action } from './action';
-import { type Store } from './store';
-import { type Plugin, type ActionContext } from './plugin';
+import type { Action } from './action';
+import type { Store } from './store';
+import type { Plugin, ActionContext } from './plugin';
 
 /**
  * Dispatch options
+ * Configuration options for dispatching an action
+ * @example
+ * ```typescript
+ * const options: DispatchOptions = { store: myStore };
+ * dispatch(myAction, options, payload);
+ * ```
  */
 export interface DispatchOptions {
   /** Store instance to execute action on */
@@ -17,10 +28,58 @@ export interface DispatchOptions {
 
 /**
  * Dispatches an action to be executed
+ *
+ * This is the primary way to execute actions in Relax. It:
+ * 1. Executes all onBefore hooks from plugins (store-level + action-level)
+ * 2. Executes the action handler
+ * 3. If successful, executes all onAfter hooks
+ * 4. If an error occurs, executes all onError hooks and re-throws
+ *
  * @param action - Action to execute
  * @param options - Dispatch options including store
  * @param payload - Payload to pass to action handler
  * @returns Result from action handler
+ *
+ * @template P - Payload type for the action
+ * @template R - Return type of the action
+ *
+ * @throws Error - Re-throws any error from the action handler after calling onError hooks
+ *
+ * @example
+ * ```typescript
+ * // Basic usage
+ * const increment = action(
+ *   'counter/increment',
+ *   (store, payload: { amount: number }) => {
+ *     const current = store.get(countState);
+ *     store.set(countState, current + payload.amount);
+ *   }
+ * );
+ *
+ * dispatch(increment, { store }, { amount: 5 });
+ *
+ * // With plugins
+ * const loggerPlugin: Plugin = {
+ *   name: 'logger',
+ *   onBefore: (ctx) => console.log(`[START] ${ctx.type}`),
+ *   onAfter: (ctx, result) => console.log(`[END] ${ctx.type}`, result),
+ *   onError: (ctx, error) => console.error(`[ERROR] ${ctx.type}`, error)
+ * };
+ *
+ * store.use(loggerPlugin);
+ * dispatch(myAction, { store }, payload); // Will log start/end
+ *
+ * // Action with return value
+ * const getUser = action(
+ *   'users/get',
+ *   (store, userId: string) => {
+ *     return store.get(usersState).find(u => u.id === userId);
+ *   }
+ * );
+ *
+ * const user = dispatch(getUser, { store }, '123');
+ * console.log(user); // User object or undefined
+ * ```
  */
 export const dispatch = <P, R>(
   action: Action<P, R>,
