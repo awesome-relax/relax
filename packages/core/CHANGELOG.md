@@ -1,5 +1,11 @@
 # @relax-state/core
 
+## 0.0.6
+
+### Patch Changes
+
+- f4bd46d: commom release
+
 ## 0.0.5
 
 ### Patch Changes
