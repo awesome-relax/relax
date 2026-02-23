@@ -1,5 +1,13 @@
 # @relax-state/react
 
+## 0.0.6
+
+### Patch Changes
+
+- f4bd46d: commom release
+- Updated dependencies [f4bd46d]
+  - @relax-state/core@0.0.6
+
 ## 0.0.5
 
 ### Patch Changes
