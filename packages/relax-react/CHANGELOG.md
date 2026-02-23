@@ -1,5 +1,13 @@
 # @relax-state/react
 
+## 0.0.7
+
+### Patch Changes
+
+- 225e8c5: fix export error
+- Updated dependencies [225e8c5]
+  - @relax-state/core@0.0.7
+
 ## 0.0.6
 
 ### Patch Changes

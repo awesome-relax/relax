@@ -1,6 +1,6 @@
 {
   "name": "@relax-state/react",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "relax-state react integration",
   "main": "./src/index.ts",
   "types": "./src/index.ts",

@@ -1,5 +1,11 @@
 # @relax-state/core
 
+## 0.0.7
+
+### Patch Changes
+
+- 225e8c5: fix export error
+
 ## 0.0.6
 
 ### Patch Changes
