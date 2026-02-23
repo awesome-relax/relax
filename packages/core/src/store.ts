@@ -316,7 +316,6 @@ export const createStore = (options?: StoreOptions): Store => {
 /**
  * Default store instance for the Relax framework
  * This is a singleton store that can be used when you don't need multiple stores
- * @deprecated Consider creating your own store instance with createStore() for better isolation
  * @example
  * ```typescript
  * // Using the default store
