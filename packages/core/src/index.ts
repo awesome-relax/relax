@@ -7,8 +7,6 @@
 export { type Action, type ActionOptions, action } from './action';
 // Export selector functionality
 export { type Computed, computed } from './computed';
-// Export dispatch
-export { type DispatchOptions, dispatch } from './dispatch';
 // Export event system
 export { createEvent } from './event';
 // Export plugin system

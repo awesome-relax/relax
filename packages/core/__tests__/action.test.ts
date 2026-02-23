@@ -1,13 +1,30 @@
-import { describe, expect, it } from 'vitest';
-import { type Action, action } from '../src/action';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { action } from '../src/action';
+import { addPlugin, clearPlugins, type Plugin } from '../src/plugin';
+import { state } from '../src/state';
+import { createStore, type Store } from '../src/store';
 
 describe('Action', () => {
-  it('should create action with handler', () => {
-    const testAction: Action<{ delta: number }, void> = action((store, payload) => {
-      // handler will be tested in dispatch
-    });
+  let store: Store;
+  let countState: ReturnType<typeof state<number>>;
 
-    expect(typeof testAction.handler).toBe('function');
+  beforeEach(() => {
+    clearPlugins();
+    store = createStore();
+    countState = state(0, 'count');
+  });
+
+  it('should create callable action', () => {
+    const testAction = action(
+      (s, payload: { delta: number }) => {
+        const current = s.get(countState);
+        s.set(countState, current + payload.delta);
+      },
+      { name: 'test' }
+    );
+
+    expect(typeof testAction).toBe('function');
+    expect(testAction.name).toBe('test');
   });
 
   it('should create action with options', () => {
@@ -18,11 +35,149 @@ describe('Action', () => {
 
   it('should support generic payload types', () => {
     const stringAction = action<string, void>((store, name) => {});
-    expect(typeof stringAction.handler).toBe('function');
+    expect(typeof stringAction).toBe('function');
 
     const objectAction = action<{ x: number; y: number }, number>((store, coord) => {
       return coord.x + coord.y;
     });
-    expect(typeof objectAction.handler).toBe('function');
+    expect(typeof objectAction).toBe('function');
+  });
+
+  it('should execute action handler with payload', () => {
+    const incrementAction = action((s, payload: { delta: number }) => {
+      const current = s.get(countState);
+      s.set(countState, current + payload.delta);
+    });
+
+    incrementAction(store, { delta: 5 });
+
+    expect(store.get(countState)).toBe(5);
+  });
+
+  it('should return result from action handler', () => {
+    const addAction = action((s, payload: { a: number; b: number }) => {
+      return payload.a + payload.b;
+    });
+
+    const result = addAction(store, { a: 3, b: 7 });
+
+    expect(result).toBe(10);
+  });
+
+  it('should call onBefore plugin hook', () => {
+    let beforeCalled = false;
+    const plugin: Plugin = {
+      name: 'test',
+      onBefore: (ctx) => {
+        beforeCalled = true;
+        expect(ctx.name).toBeUndefined();
+      },
+    };
+
+    addPlugin(plugin);
+
+    const testAction = action((s) => {});
+    testAction(store, null);
+
+    expect(beforeCalled).toBe(true);
+  });
+
+  it('should call onBefore with action name', () => {
+    let capturedName = '';
+    const plugin: Plugin = {
+      name: 'test',
+      onBefore: (ctx) => {
+        capturedName = ctx.name || '';
+      },
+    };
+
+    addPlugin(plugin);
+
+    const testAction = action((s) => {}, { name: 'my-action' });
+    testAction(store, null);
+
+    expect(capturedName).toBe('my-action');
+  });
+
+  it('should call onAfter plugin hook on success', () => {
+    let afterCalled = false;
+    let resultValue: unknown;
+    const plugin: Plugin = {
+      name: 'test',
+      onAfter: (ctx, result) => {
+        afterCalled = true;
+        resultValue = result;
+      },
+    };
+
+    addPlugin(plugin);
+
+    const testAction = action(() => 42);
+    testAction(store, null);
+
+    expect(afterCalled).toBe(true);
+    expect(resultValue).toBe(42);
+  });
+
+  it('should call onError plugin hook on exception', () => {
+    let errorCalled = false;
+    let capturedError: Error | null = null;
+    const plugin: Plugin = {
+      name: 'test',
+      onError: (ctx, error) => {
+        errorCalled = true;
+        capturedError = error;
+      },
+    };
+
+    addPlugin(plugin);
+
+    const testAction = action(() => {
+      throw new Error('Test error');
+    });
+
+    expect(() => testAction(store, null)).toThrow('Test error');
+    expect(errorCalled).toBe(true);
+    expect(capturedError?.message).toBe('Test error');
+  });
+
+  it('should call action-level plugins', () => {
+    let actionPluginCalled = false;
+    const actionPlugin: Plugin = {
+      name: 'action-plugin',
+      onBefore: () => {
+        actionPluginCalled = true;
+      },
+    };
+
+    const testAction = action(() => {}, { plugins: [actionPlugin] });
+    testAction(store, null);
+
+    expect(actionPluginCalled).toBe(true);
+  });
+
+  it('should merge global plugins and action plugins', () => {
+    let globalPluginCalled = false;
+    let actionPluginCalled = false;
+
+    const globalPlugin: Plugin = {
+      name: 'global-plugin',
+      onBefore: () => {
+        globalPluginCalled = true;
+      },
+    };
+    const actionPlugin: Plugin = {
+      name: 'action-plugin',
+      onBefore: () => {
+        actionPluginCalled = true;
+      },
+    };
+
+    addPlugin(globalPlugin);
+    const testAction = action(() => {}, { plugins: [actionPlugin] });
+    testAction(store, null);
+
+    expect(globalPluginCalled).toBe(true);
+    expect(actionPluginCalled).toBe(true);
   });
 });

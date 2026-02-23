@@ -50,9 +50,6 @@ export type ActionHandler<P, R, S extends Store = Store> = (store: S, payload: P
  * ```
  */
 export interface Action<P = any, R = any> {
-  /** Action handler function that implements the business logic */
-  handler: ActionHandler<P, R>;
-
   /** Optional readable name for debugging and logging */
   name?: string;
 
@@ -134,20 +131,13 @@ export const action = <P, R>(
   const name = options?.name;
   const actionPlugins = options?.plugins || [];
 
-  // Create action context
-  const actionObj = {
-    handler,
-    name,
-    plugins: actionPlugins,
-  };
-
   // Create the callable function
   const actionFn = (store: Store, payload: P): R => {
     // Get global plugins
     const globalPlugins = getPlugins();
     const allPlugins: Plugin[] = [...globalPlugins, ...actionPlugins];
 
-    const context: ActionContext<P, R> = { name, type: actionObj, payload };
+    const context: ActionContext<P, R> = { name, type: actionFn, payload };
 
     // 1. Execute onBefore hooks
     for (const plugin of allPlugins) {
@@ -180,11 +170,6 @@ export const action = <P, R>(
   };
 
   // Use Object.defineProperty to attach metadata
-  Object.defineProperty(actionFn, 'handler', {
-    value: handler,
-    writable: false,
-    configurable: false,
-  });
   Object.defineProperty(actionFn, 'name', { value: name, writable: false, configurable: false });
   Object.defineProperty(actionFn, 'plugins', {
     value: actionPlugins,
