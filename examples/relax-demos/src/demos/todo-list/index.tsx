@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import './index.scss';
-import { computed, DefultStore, state } from '@relax-state/core';
+import { action, computed, createStore, dispatch, Plugin, state } from '@relax-state/core';
 import { useRelaxValue } from '@relax-state/react';
 import { useTranslation } from '../../i18n/useTranslation';
 
@@ -10,10 +10,22 @@ interface Todo {
   completed: boolean;
 }
 
-// Use new state API
+// 创建一个带日志功能的 store
+const loggerPlugin: Plugin = {
+  name: 'todo-logger',
+  onBefore: (ctx) => {
+    console.log(`[Action] ${ctx.type}`, ctx.payload);
+  },
+  onAfter: (ctx) => {
+    console.log(`[Action] ${ctx.type} completed`);
+  },
+};
+
+const todoStore = createStore({ plugins: [loggerPlugin] });
+
+// 状态定义
 const todoListAtom = state<Todo[]>([]);
 
-// Use new computed API
 const completedCountSelector = computed<number>({
   get: (get) => get(todoListAtom)?.filter((todo) => todo.completed).length || 0,
 });
@@ -21,6 +33,40 @@ const completedCountSelector = computed<number>({
 const pendingCountSelector = computed<number>({
   get: (get) => get(todoListAtom)?.filter((todo) => !todo.completed).length || 0,
 });
+
+// Actions
+const addTodoAction = action(
+  'todos/add',
+  (store, payload: { text: string }) => {
+    const newTodo: Todo = {
+      id: Date.now().toString(),
+      text: payload.text,
+      completed: false,
+    };
+    const currentTodos = store.get(todoListAtom) || [];
+    store.set(todoListAtom, [...currentTodos, newTodo]);
+    return newTodo;
+  }
+);
+
+const toggleTodoAction = action(
+  'todos/toggle',
+  (store, payload: { id: string }) => {
+    const currentTodos = store.get(todoListAtom) || [];
+    const updated = currentTodos.map((todo: Todo) =>
+      todo.id === payload.id ? { ...todo, completed: !todo.completed } : todo
+    );
+    store.set(todoListAtom, updated);
+  }
+);
+
+const removeTodoAction = action(
+  'todos/remove',
+  (store, payload: { id: string }) => {
+    const currentTodos = store.get(todoListAtom) || [];
+    store.set(todoListAtom, currentTodos.filter((todo: Todo) => todo.id !== payload.id));
+  }
+);
 
 export const TodoList = () => {
   const t = useTranslation();
@@ -34,33 +80,16 @@ export const TodoList = () => {
       return;
     }
 
-    const newTodo: Todo = {
-      id: Date.now().toString(),
-      text: inputValue.trim(),
-      completed: false,
-    };
-
-    const currentTodos = DefultStore.get(todoListAtom) || [];
-    DefultStore.set(todoListAtom, [...currentTodos, newTodo]);
+    dispatch(addTodoAction, { store: todoStore }, { text: inputValue.trim() });
     setInputValue('');
   };
 
   const toggleTodo = (id: string) => {
-    const currentTodos = DefultStore.get(todoListAtom) || [];
-    DefultStore.set(
-      todoListAtom,
-      currentTodos.map((todo: Todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    );
+    dispatch(toggleTodoAction, { store: todoStore }, { id });
   };
 
   const removeTodo = (id: string) => {
-    const currentTodos = DefultStore.get(todoListAtom) || [];
-    DefultStore.set(
-      todoListAtom,
-      currentTodos.filter((todo: Todo) => todo.id !== id)
-    );
+    dispatch(removeTodoAction, { store: todoStore }, { id });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
