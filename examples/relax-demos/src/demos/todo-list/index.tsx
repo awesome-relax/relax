@@ -36,7 +36,6 @@ const pendingCountSelector = computed<number>({
 
 // Actions
 const addTodoAction = action(
-  'todos/add',
   (store, payload: { text: string }) => {
     const newTodo: Todo = {
       id: Date.now().toString(),
@@ -46,26 +45,27 @@ const addTodoAction = action(
     const currentTodos = store.get(todoListAtom) || [];
     store.set(todoListAtom, [...currentTodos, newTodo]);
     return newTodo;
-  }
+  },
+  { name: 'todos/add' }
 );
 
 const toggleTodoAction = action(
-  'todos/toggle',
   (store, payload: { id: string }) => {
     const currentTodos = store.get(todoListAtom) || [];
     const updated = currentTodos.map((todo: Todo) =>
       todo.id === payload.id ? { ...todo, completed: !todo.completed } : todo
     );
     store.set(todoListAtom, updated);
-  }
+  },
+  { name: 'todos/toggle' }
 );
 
 const removeTodoAction = action(
-  'todos/remove',
   (store, payload: { id: string }) => {
     const currentTodos = store.get(todoListAtom) || [];
     store.set(todoListAtom, currentTodos.filter((todo: Todo) => todo.id !== payload.id));
-  }
+  },
+  { name: 'todos/remove' }
 );
 
 export const TodoList = () => {

@@ -4,10 +4,10 @@
  * @module action
  * @example
  * ```typescript
- * const increment = action('increment', (store, payload: { delta: number }) => {
+ * const increment = action((store, payload: { delta: number }) => {
  *   const current = store.get(countState);
  *   store.set(countState, current + payload.delta);
- * });
+ * }, { name: 'increment' });
  * ```
  */
 
@@ -41,15 +41,12 @@ export type ActionHandler<P, R, S extends Store = Store> = (
  * @template R - Return type
  * @example
  * ```typescript
- * const myAction: Action<{ id: string }, User> = action('getUser', (store, payload) => {
+ * const myAction: Action<{ id: string }, User> = action((store, payload) => {
  *   return store.get(users).find(u => u.id === payload.id);
- * });
+ * }, { name: 'getUser' });
  * ```
  */
 export interface Action<P = any, R = any> {
-  /** Unique action type identifier */
-  type: string;
-
   /** Action handler function that implements the business logic */
   handler: ActionHandler<P, R>;
 
@@ -66,7 +63,6 @@ export interface Action<P = any, R = any> {
  * @example
  * ```typescript
  * const myAction = action(
- *   'fetchUser',
  *   (store, id: string) => store.get(userState),
  *   { name: 'Fetch User Action', plugins: [loggerPlugin] }
  * );
@@ -85,7 +81,6 @@ export interface ActionOptions {
  * Actions are the primary way to modify state in Relax. They encapsulate business logic
  * and can be dispatched to perform operations on the store.
  *
- * @param type - Unique action type identifier (should be descriptive of the action)
  * @param handler - Action handler function that implements the business logic
  * @param options - Optional action configuration (name, plugins)
  * @returns Action object that can be dispatched
@@ -97,7 +92,6 @@ export interface ActionOptions {
  * ```typescript
  * // Simple action with payload
  * const increment = action(
- *   'counter/increment',
  *   (store, payload: { amount: number }) => {
  *     const current = store.get(countState);
  *     store.set(countState, current + payload.amount);
@@ -106,7 +100,6 @@ export interface ActionOptions {
  *
  * // Action with return value and options
  * const fetchUser = action(
- *   'users/fetch',
  *   async (store, userId: string) => {
  *     const response = await fetch(`/api/users/${userId}`);
  *     return response.json();
@@ -123,12 +116,10 @@ export interface ActionOptions {
  * ```
  */
 export const action = <P, R>(
-  type: string,
   handler: ActionHandler<P, R>,
   options?: ActionOptions
 ): Action<P, R> => {
   return {
-    type,
     handler,
     name: options?.name,
     plugins: options?.plugins

@@ -19,16 +19,16 @@ describe('Action Integration', () => {
 
     // 3. Create actions
     const incrementAction = action(
-      'increment',
       (s, payload: { delta: number }) => {
         const current = s.get(countState);
         s.set(countState, current + payload.delta);
-      }
+      },
+      { name: 'increment' }
     );
 
     const getCountAction = action(
-      'getCount',
-      (s) => s.get(countState)
+      (s) => s.get(countState),
+      { name: 'getCount' }
     );
 
     // 4. Dispatch actions
@@ -54,9 +54,9 @@ describe('Action Integration', () => {
 
     const actionLog: string[] = [];
     const trackedAction = action(
-      'tracked',
       () => {},
       {
+        name: 'tracked',
         plugins: [{
           name: 'tracker',
           onBefore: (ctx) => actionLog.push('tracked-start')
@@ -77,9 +77,9 @@ describe('Action Integration', () => {
 
     const store = createStore({ plugins: [errorPlugin] });
 
-    const failingAction = action('fail', () => {
+    const failingAction = action(() => {
       throw new Error('Expected error');
-    });
+    }, { name: 'fail' });
 
     expect(() => dispatch(failingAction, { store }, null)).toThrow();
     expect(errorLog).toHaveLength(1);

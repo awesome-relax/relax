@@ -16,7 +16,6 @@ describe('Dispatch', () => {
 
   it('should execute action handler with payload', () => {
     const incrementAction = action(
-      'increment',
       (s, payload: { delta: number }) => {
         const current = s.get(countState);
         s.set(countState, current + payload.delta);
@@ -31,7 +30,6 @@ describe('Dispatch', () => {
 
   it('should return result from action handler', () => {
     const addAction = action(
-      'add',
       (s, payload: { a: number; b: number }) => {
         return payload.a + payload.b;
       }
@@ -49,16 +47,33 @@ describe('Dispatch', () => {
       name: 'test',
       onBefore: (ctx) => {
         beforeCalled = true;
-        expect(ctx.type).toBe('test-action');
+        expect(ctx.type).toBe('anonymous');
       }
     };
 
     store.use(plugin);
 
-    const testAction = action('test-action', (s) => {});
+    const testAction = action((s) => {});
     dispatch(testAction, { store }, null);
 
     expect(beforeCalled).toBe(true);
+  });
+
+  it('should call onBefore with action name', () => {
+    let capturedType = '';
+    const plugin: Plugin = {
+      name: 'test',
+      onBefore: (ctx) => {
+        capturedType = ctx.type;
+      }
+    };
+
+    store.use(plugin);
+
+    const testAction = action((s) => {}, { name: 'my-action' });
+    dispatch(testAction, { store }, null);
+
+    expect(capturedType).toBe('my-action');
   });
 
   it('should call onAfter plugin hook on success', () => {
@@ -74,7 +89,7 @@ describe('Dispatch', () => {
 
     store.use(plugin);
 
-    const testAction = action('test-action', () => 42);
+    const testAction = action(() => 42);
     dispatch(testAction, { store }, null);
 
     expect(afterCalled).toBe(true);
@@ -94,7 +109,7 @@ describe('Dispatch', () => {
 
     store.use(plugin);
 
-    const testAction = action('test-action', () => {
+    const testAction = action(() => {
       throw new Error('Test error');
     });
 
@@ -110,7 +125,7 @@ describe('Dispatch', () => {
       onBefore: () => { actionPluginCalled = true; }
     };
 
-    const testAction = action('test', () => {}, { plugins: [actionPlugin] });
+    const testAction = action(() => {}, { plugins: [actionPlugin] });
     dispatch(testAction, { store }, null);
 
     expect(actionPluginCalled).toBe(true);
@@ -130,7 +145,7 @@ describe('Dispatch', () => {
     };
 
     store.use(storePlugin);
-    const testAction = action('test', () => {}, { plugins: [actionPlugin] });
+    const testAction = action(() => {}, { plugins: [actionPlugin] });
     dispatch(testAction, { store }, null);
 
     expect(storePluginCalled).toBe(true);

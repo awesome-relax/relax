@@ -49,11 +49,11 @@ export interface DispatchOptions {
  * ```typescript
  * // Basic usage
  * const increment = action(
- *   'counter/increment',
  *   (store, payload: { amount: number }) => {
  *     const current = store.get(countState);
  *     store.set(countState, current + payload.amount);
- *   }
+ *   },
+ *   { name: 'counter/increment' }
  * );
  *
  * dispatch(increment, { store }, { amount: 5 });
@@ -71,10 +71,10 @@ export interface DispatchOptions {
  *
  * // Action with return value
  * const getUser = action(
- *   'users/get',
  *   (store, userId: string) => {
  *     return store.get(usersState).find(u => u.id === userId);
- *   }
+ *   },
+ *   { name: 'users/get' }
  * );
  *
  * const user = dispatch(getUser, { store }, '123');
@@ -87,13 +87,13 @@ export const dispatch = <P, R>(
   payload: P
 ): R => {
   const { store } = options;
-  const { type, handler, plugins: actionPlugins = [] } = action;
+  const { handler, plugins: actionPlugins = [], name } = action;
 
   // Merge store plugins and action-level plugins
   const storePlugins = store.getPlugins();
   const allPlugins: Plugin[] = [...storePlugins, ...actionPlugins];
 
-  const context: ActionContext = { type, payload };
+  const context: ActionContext = { type: name || 'anonymous', payload };
 
   // 1. Execute onBefore hooks
   for (const plugin of allPlugins) {

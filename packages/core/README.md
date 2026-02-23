@@ -40,11 +40,11 @@ store.effect(count, ({ oldValue, newValue }) => {
 
 // Create and dispatch actions
 const increment = action(
-  'counter/increment',
   (store, payload: { amount: number }) => {
     const current = store.get(count);
     store.set(count, current + payload.amount);
-  }
+  },
+  { name: 'counter/increment' }
 );
 
 dispatch(increment, { store }, { amount: 5 });
@@ -124,20 +124,23 @@ const count = state(0);
 
 // Define an action
 const increment = action(
-  'counter/increment',
   (store, payload: { amount: number }) => {
     const current = store.get(count);
     store.set(count, current + payload.amount);
-  }
+  },
+  { name: 'counter/increment' }
 );
 
 // Dispatch the action
 dispatch(increment, { store }, { amount: 5 });
 
 // Action with return value
-const getCount = action('counter/get', (store) => {
-  return store.get(count);
-});
+const getCount = action(
+  (store) => {
+    return store.get(count);
+  },
+  { name: 'counter/get' }
+);
 
 const value = dispatch(getCount, { store }, null);
 console.log(value); // 5
@@ -175,9 +178,8 @@ store.use(analyticsPlugin);
 
 // Use plugins at action level
 const myAction = action(
-  'my/action',
   (store, payload) => { /* ... */ },
-  { plugins: [specificPlugin] }
+  { name: 'my/action', plugins: [specificPlugin] }
 );
 
 // Dispatch - both store and action plugins will be called
