@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { computed, DefultStore, state } from '../src/index';
+import { computed, state } from '../src/index';
+import { DefultStore } from '@relax-state/store';
 
 describe('computed', () => {
   it('should compute derived value and react to dependency changes', async () => {

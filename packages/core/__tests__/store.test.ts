@@ -3,11 +3,11 @@ import {
   addPlugin,
   clearPlugins,
   computed,
-  createStore,
   getPlugins,
   removePlugin,
   state,
 } from '../src/index';
+import { createStore } from '@relax-state/store';
 import type { Plugin } from '../src/plugin';
 
 describe('store', () => {

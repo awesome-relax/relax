@@ -26,4 +26,3 @@ export {
   state,
   type Value,
 } from './state';
-export { createStore, DefultStore, type Store } from './store';
