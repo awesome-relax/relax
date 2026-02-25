@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './index.scss';
-import { action, addPlugin, computed, createStore, type Plugin, state } from '@relax-state/core';
+import { action, addPlugin, computed, type Plugin, state } from '@relax-state/core';
+import { createStore } from '@relax-state/store';
 import { useRelaxValue } from '@relax-state/react';
 import { useTranslation } from '../../i18n/useTranslation';
 

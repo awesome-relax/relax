@@ -1,4 +1,5 @@
-import { computed, DefultStore, state } from '@relax-state/core';
+import { computed, state } from '@relax-state/core';
+import { DefultStore } from '@relax-state/store';
 import { useRelaxValue } from '@relax-state/react';
 import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from '../../i18n/useTranslation';

@@ -3,7 +3,7 @@
  * Provides Relax store context to React components
  */
 
-import { DefultStore, type Store } from '@relax-state/core';
+import { DefultStore, type Store } from '@relax-state/store';
 import { createContext, type ReactNode, useContext } from 'react';
 
 /** Context for storing the Relax store instance */
