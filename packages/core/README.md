@@ -2,6 +2,21 @@
 
 Core state management library for Relax framework. Provides reactive state, computed values, effects, and actions.
 
+## Breaking Change: Store Exports Moved
+
+As of the store package split, `createStore`, `DefultStore`, and `Store` are **no longer exported from @relax-state/core**. Import them from `@relax-state/store` instead:
+
+```typescript
+// Before
+import { createStore, DefultStore, state } from '@relax-state/core';
+
+// After
+import { state } from '@relax-state/core';
+import { createStore, DefultStore } from '@relax-state/store';
+```
+
+Install the store package: `pnpm add @relax-state/store`
+
 ## Installation
 
 ```bash
@@ -13,7 +28,8 @@ pnpm add @relax-state/core
 ## Quick Start
 
 ```typescript
-import { state, computed, createStore, action } from '@relax-state/core';
+import { state, computed, action } from '@relax-state/core';
+import { createStore } from '@relax-state/store';
 
 // Create state
 const count = state(0);
@@ -74,7 +90,8 @@ const debugState = state(0, 'counter');
 The store manages all state and effects.
 
 ```typescript
-import { createStore, state } from '@relax-state/core';
+import { state } from '@relax-state/core';
+import { createStore } from '@relax-state/store';
 
 const store = createStore();
 const count = state(0);
@@ -100,6 +117,7 @@ Computed values are derived from other states.
 
 ```typescript
 import { state, computed } from '@relax-state/core';
+import { createStore } from '@relax-state/store';
 
 const count = state(0);
 const doubled = computed({
@@ -118,7 +136,8 @@ console.log(store.get(doubled)); // 10
 Actions encapsulate business logic and can be dispatched.
 
 ```typescript
-import { state, action, dispatch, createStore } from '@relax-state/core';
+import { state, action } from '@relax-state/core';
+import { createStore } from '@relax-state/store';
 
 const store = createStore();
 const count = state(0);
@@ -152,7 +171,8 @@ console.log(value); // 5
 Plugins hook into the action lifecycle for cross-cutting concerns. Plugins are global and can be added/removed at runtime.
 
 ```typescript
-import { Plugin, action, addPlugin, removePlugin, getPlugins, clearPlugins, createStore } from '@relax-state/core';
+import { Plugin, action, addPlugin, removePlugin, getPlugins, clearPlugins } from '@relax-state/core';
+import { createStore } from '@relax-state/store';
 
 const store = createStore();
 

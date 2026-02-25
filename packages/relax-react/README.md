@@ -22,10 +22,10 @@ npm install @relax/react
 A hook for using and updating Relax atoms/selectors in React components.
 
 ```typescript
-import { atom } from '@relax/core';
-import { useRelaxState } from '@relax/react';
+import { state } from '@relax-state/core';
+import { useRelaxState } from '@relax-state/react';
 
-const counterAtom = atom(0);
+const counterAtom = state(0);
 
 function Counter() {
   const [count, setCount] = useRelaxState(counterAtom);
@@ -44,10 +44,11 @@ function Counter() {
 A hook for read-only subscription to Relax atoms/selectors.
 
 ```typescript
-import { selector } from '@relax/core';
-import { useRelaxValue } from '@relax/react';
+import { computed, state } from '@relax-state/core';
+import { useRelaxValue } from '@relax-state/react';
 
-const doubleCounter = selector(get => (get(counterAtom) ?? 0) * 2);
+const counterAtom = state(0);
+const doubleCounter = computed({ get: (get) => (get(counterAtom) ?? 0) * 2 });
 
 function DoubleCounter() {
   const value = useRelaxValue(doubleCounter);
@@ -60,8 +61,8 @@ function DoubleCounter() {
 A hook for using actions with full type safety. The returned tuple preserves each action's payload and return types.
 
 ```typescript
-import { action } from '@relax/core';
-import { useActions } from '@relax/react';
+import { action } from '@relax-state/core';
+import { useActions } from '@relax-state/react';
 
 // Define actions with types
 const addTodoAction = action((store, payload: { text: string }) => {
@@ -112,13 +113,14 @@ packages/relax-react/
 
 ## ⚡ Dependencies
 
-- `@relax/core`
+- `@relax-state/core`
+- `@relax-state/store`
 - `react` (peer dependency)
 
 ## 📝 Notes
 
 - All hooks are fully reactive and will re-render your component when the underlying state changes.
-- You can use all core APIs from `@relax/core` directly, as they are re-exported.
+- Import state/computed/action from `@relax-state/core` and createStore/DefultStore from `@relax-state/store`.
 
 ## 📄 License
 
