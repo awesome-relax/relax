@@ -20,8 +20,10 @@ export {
 } from './plugin';
 // Export core state management utilities
 export {
+  type ComputedFn,
+  RELAX_NODES,
   type State,
   state,
   type Value,
 } from './state';
-export { createStore, DefultStore, type Store } from './store';
+export { createStore, DefultStore, type Store } from '@relax-state/store';
