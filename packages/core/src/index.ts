@@ -20,6 +20,8 @@ export {
 } from './plugin';
 // Export core state management utilities
 export {
+  type ComputedFn,
+  RELAX_NODES,
   type State,
   state,
   type Value,
