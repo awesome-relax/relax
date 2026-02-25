@@ -30,7 +30,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@relax-state/core": "workspace:*"
+    "@relax-state/core": "workspace:*",
+    "@relax-state/store": "workspace:*"
   },
   "peerDependencies": {
     "react": "^18.0.0"
