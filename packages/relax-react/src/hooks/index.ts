@@ -3,7 +3,7 @@
  * Provides reactive integration between Relax state and React components
  */
 
-import type { Action, action, State, Value } from '@relax-state/core';
+import type { Action, State, Value } from '@relax-state/core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRelaxStore } from '../provider';
 
