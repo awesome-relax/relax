@@ -27,5 +27,8 @@
   "license": "ISC",
   "devDependencies": {
     "vitest": "^1.6.0"
+  },
+  "dependencies": {
+    "@relax-state/store": "workspace:*"
   }
 }
