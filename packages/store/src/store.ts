@@ -16,7 +16,7 @@ import {
   RELAX_NODES,
   type State,
   type Value,
-} from '../../core/src/state';
+} from '@relax-state/core';
 
 /**
  * Store class for managing reactive state
