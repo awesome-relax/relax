@@ -25,9 +25,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "@relax-state/store": "workspace:*"
-  },
   "devDependencies": {
     "vitest": "^1.6.0"
   }

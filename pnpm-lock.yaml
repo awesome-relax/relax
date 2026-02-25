@@ -110,10 +110,6 @@ importers:
         version: 7.0.4(@types/node@20.19.10)(sass-embedded@1.89.2)(yaml@2.8.1)
 
   packages/core:
-    dependencies:
-      '@relax-state/store':
-        specifier: workspace:*
-        version: link:../store
     devDependencies:
       vitest:
         specifier: ^1.6.0

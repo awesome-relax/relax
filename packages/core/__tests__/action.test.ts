@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { action } from '../src/action';
 import { addPlugin, clearPlugins, type Plugin } from '../src/plugin';
 import { state } from '../src/state';
-import { createStore, type Store } from '../src';
+import { createStore, type Store } from '../src/store';
 
 describe('Action', () => {
   let store: Store;

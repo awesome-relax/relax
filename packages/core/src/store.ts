@@ -11,12 +11,7 @@
  * ```
  */
 
-import {
-  type ComputedFn,
-  RELAX_NODES,
-  type State,
-  type Value,
-} from '../../core/src/state';
+import { type ComputedFn, RELAX_NODES, type State, type Value } from './state';
 
 /**
  * Store class for managing reactive state
