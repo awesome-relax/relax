@@ -14,7 +14,7 @@ describe('Action Integration', () => {
     const loggerPlugin: Plugin = {
       name: 'logger',
       onBefore: (ctx) => log.push(`[START] ${ctx.name}`),
-      onAfter: (ctx) => log.push(`[END] ${ctx.name}`),
+      onAfter: (_ctx) => log.push(`[END] ${_ctx.name}`),
     };
 
     addPlugin(loggerPlugin);
@@ -75,7 +75,7 @@ describe('Action Integration', () => {
     const errorLog: Error[] = [];
     const errorPlugin: Plugin = {
       name: 'error-logger',
-      onError: (ctx, error) => errorLog.push(error),
+      onError: (_ctx, error) => errorLog.push(error),
     };
 
     addPlugin(errorPlugin);

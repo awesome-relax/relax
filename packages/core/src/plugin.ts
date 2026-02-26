@@ -16,7 +16,7 @@ const globalPlugins: Plugin[] = [];
  * Action context passed to plugin hooks
  * Contains information about the action being executed
  */
-export interface ActionContext<T = any, R = any> {
+export interface ActionContext<T = unknown, R = unknown> {
   /** Action name from options */
   name?: string;
   /** Full action object */

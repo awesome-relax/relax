@@ -8,10 +8,10 @@ describe('Plugin', () => {
       onBefore: (ctx) => {
         console.log('before', ctx.type);
       },
-      onAfter: (ctx, result) => {
+      onAfter: (_ctx, result) => {
         console.log('after', result);
       },
-      onError: (ctx, error) => {
+      onError: (_ctx, error) => {
         console.log('error', error);
       },
     };

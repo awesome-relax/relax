@@ -53,13 +53,6 @@ export class Store {
   private computing: Set<string> = new Set();
 
   /**
-   * Creates a new Store instance
-   */
-  constructor() {
-    // No initialization needed
-  }
-
-  /**
    * Gets the value of a state
    * For computed values, this will compute and cache the value, tracking dependencies
    *
@@ -98,7 +91,7 @@ export class Store {
 
       this.computing.add(id);
       try {
-        const dependencies = new Set<Value<any>>();
+        const dependencies = new Set<Value<unknown>>();
         const get = <U>(state: Value<U>): U => {
           // Track dependency relationship
           dependencies.add(state);

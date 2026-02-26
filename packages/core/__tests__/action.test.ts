@@ -28,16 +28,16 @@ describe('Action', () => {
   });
 
   it('should create action with options', () => {
-    const testAction = action((store, payload) => {}, { name: 'Decrement Action' });
+    const testAction = action((_store, _payload) => {}, { name: 'Decrement Action' });
 
     expect(testAction.name).toBe('Decrement Action');
   });
 
   it('should support generic payload types', () => {
-    const stringAction = action<string, void>((store, name) => {});
+    const stringAction = action<string, void>((_store, _name) => {});
     expect(typeof stringAction).toBe('function');
 
-    const objectAction = action<{ x: number; y: number }, number>((store, coord) => {
+    const objectAction = action<{ x: number; y: number }, number>((_store, coord) => {
       return coord.x + coord.y;
     });
     expect(typeof objectAction).toBe('function');
@@ -55,7 +55,7 @@ describe('Action', () => {
   });
 
   it('should return result from action handler', () => {
-    const addAction = action((s, payload: { a: number; b: number }) => {
+    const addAction = action((_s, payload: { a: number; b: number }) => {
       return payload.a + payload.b;
     });
 
@@ -76,7 +76,7 @@ describe('Action', () => {
 
     addPlugin(plugin);
 
-    const testAction = action((s) => {});
+    const testAction = action((_s) => {});
     testAction(store, null);
 
     expect(beforeCalled).toBe(true);
@@ -93,7 +93,7 @@ describe('Action', () => {
 
     addPlugin(plugin);
 
-    const testAction = action((s) => {}, { name: 'my-action' });
+    const testAction = action((_s) => {}, { name: 'my-action' });
     testAction(store, null);
 
     expect(capturedName).toBe('my-action');
@@ -104,7 +104,7 @@ describe('Action', () => {
     let resultValue: unknown;
     const plugin: Plugin = {
       name: 'test',
-      onAfter: (ctx, result) => {
+      onAfter: (_ctx, result) => {
         afterCalled = true;
         resultValue = result;
       },
@@ -124,7 +124,7 @@ describe('Action', () => {
     let capturedError: Error | null = null;
     const plugin: Plugin = {
       name: 'test',
-      onError: (ctx, error) => {
+      onError: (_ctx, error) => {
         errorCalled = true;
         capturedError = error;
       },

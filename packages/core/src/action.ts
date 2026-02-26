@@ -49,7 +49,7 @@ export type ActionHandler<P, R, S extends Store = Store> = (store: S, payload: P
  * const user = myAction(store, { id: '123' });
  * ```
  */
-export interface Action<P = any, R = any> {
+export interface Action<P = unknown, R = unknown> {
   /** Optional readable name for debugging and logging */
   name?: string;
 
