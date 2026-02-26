@@ -4,17 +4,17 @@
  * @module action
  * @example
  * ```typescript
- * const increment = action((store, payload: { delta: number }) => {
+ * const increment = action((payload: { delta: number }, store) => {
  *   const current = store.get(countState);
  *   store.set(countState, current + payload.delta);
  * }, { name: 'increment' });
  *
- * // Call directly
- * increment(store, { delta: 5 });
+ * // Call directly (store is injected by the runtime)
+ * increment({ delta: 5 });
  * ```
  */
 
-import type { Store } from '@relax-state/store';
+import { getRuntimeStore, type Store } from '@relax-state/store';
 import { type ActionContext, getPlugins, type Plugin } from './plugin';
 
 /**
@@ -22,17 +22,17 @@ import { type ActionContext, getPlugins, type Plugin } from './plugin';
  * @template P - Payload type
  * @template R - Return type
  * @template S - Store type (defaults to Store)
- * @param store - The store instance to interact with state
- * @param payload - The payload passed when dispatching the action
+ * @param payload - The payload passed when calling the action
+ * @param store - The store instance (injected by the runtime)
  * @returns The result of the action execution
  * @example
  * ```typescript
- * const handler: ActionHandler<{ id: string }, User> = (store, payload) => {
+ * const handler: ActionHandler<{ id: string }, User> = (payload, store) => {
  *   return store.get(userState).find(u => u.id === payload.id);
  * };
  * ```
  */
-export type ActionHandler<P, R, S extends Store = Store> = (store: S, payload: P) => R;
+export type ActionHandler<P, R, S extends Store = Store> = (payload: P, store: S) => R;
 
 /**
  * Action interface
@@ -41,28 +41,24 @@ export type ActionHandler<P, R, S extends Store = Store> = (store: S, payload: P
  * @template R - Return type
  * @example
  * ```typescript
- * const myAction: Action<{ id: string }, User> = action((store, payload) => {
+ * const myAction: Action<{ id: string }, User> = action((payload, store) => {
  *   return store.get(users).find(u => u.id === payload.id);
  * }, { name: 'getUser' });
  *
  * // Call directly
- * const user = myAction(store, { id: '123' });
+ * const user = myAction({ id: '123' });
  * ```
  */
-export interface Action<P = unknown, R = unknown> {
+export interface Action<P = any, R = any> {
   /** Optional readable name for debugging and logging */
   name?: string;
 
-  /** Optional plugins specific to this action for custom behavior */
-  plugins?: Plugin[];
-
   /**
-   * Call the action directly
-   * @param store - The store instance
+   * Call the action directly. Store is injected by the runtime; do not pass it.
    * @param payload - The payload to pass to the handler
    * @returns The result from the action handler
    */
-  (store: Store, payload: P): R;
+  (payload: P): R;
 }
 
 /**
@@ -71,7 +67,7 @@ export interface Action<P = unknown, R = unknown> {
  * @example
  * ```typescript
  * const myAction = action(
- *   (store, id: string) => store.get(userState),
+ *   (payload: string, store) => store.get(userState),
  *   { name: 'Fetch User Action', plugins: [loggerPlugin] }
  * );
  * ```
@@ -79,17 +75,14 @@ export interface Action<P = unknown, R = unknown> {
 export interface ActionOptions {
   /** Optional readable name for the action */
   name?: string;
-
-  /** Optional plugins specific to this action */
-  plugins?: Plugin[];
 }
 
 /**
  * Creates a new Action
  * Actions are callable objects that encapsulate business logic with plugin support.
- * They can be invoked directly like: action(store, payload)
+ * They can be invoked directly like: action(payload). The store is injected by the runtime.
  *
- * @param handler - Action handler function that implements the business logic
+ * @param handler - Action handler (payload, store) => result
  * @param options - Optional action configuration (name, plugins)
  * @returns Callable Action object
  *
@@ -100,7 +93,7 @@ export interface ActionOptions {
  * ```typescript
  * // Simple action with payload
  * const increment = action(
- *   (store, payload: { amount: number }) => {
+ *   (payload: { amount: number }, store) => {
  *     const current = store.get(countState);
  *     store.set(countState, current + payload.amount);
  *   },
@@ -109,7 +102,7 @@ export interface ActionOptions {
  *
  * // Action with return value and options
  * const fetchUser = action(
- *   async (store, userId: string) => {
+ *   async (userId: string, store) => {
  *     const response = await fetch(`/api/users/${userId}`);
  *     return response.json();
  *   },
@@ -119,9 +112,9 @@ export interface ActionOptions {
  *   }
  * );
  *
- * // Call directly (no dispatch needed)
- * increment(store, { amount: 5 });
- * const user = await fetchUser(store, '123');
+ * // Call directly (store injected by runtime)
+ * increment({ amount: 5 });
+ * const user = await fetchUser('123');
  * ```
  */
 export const action = <P, R>(
@@ -129,13 +122,13 @@ export const action = <P, R>(
   options?: ActionOptions
 ): Action<P, R> => {
   const name = options?.name;
-  const actionPlugins = options?.plugins || [];
 
   // Create the callable function
-  const actionFn = (store: Store, payload: P): R => {
+  const actionFn = (payload: P): R => {
+    const store = getRuntimeStore();
     // Get global plugins
     const globalPlugins = getPlugins();
-    const allPlugins: Plugin[] = [...globalPlugins, ...actionPlugins];
+    const allPlugins: Plugin[] = [...globalPlugins];
 
     const context: ActionContext<P, R> = { name, type: actionFn, payload };
 
@@ -149,7 +142,7 @@ export const action = <P, R>(
 
     // 2. Execute action handler
     try {
-      result = handler(store, payload);
+      result = handler(payload, store);
     } catch (e) {
       error = e as Error;
 
@@ -171,11 +164,6 @@ export const action = <P, R>(
 
   // Use Object.defineProperty to attach metadata
   Object.defineProperty(actionFn, 'name', { value: name, writable: false, configurable: false });
-  Object.defineProperty(actionFn, 'plugins', {
-    value: actionPlugins,
-    writable: false,
-    configurable: false,
-  });
 
   return actionFn as Action<P, R>;
 };

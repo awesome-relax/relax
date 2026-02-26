@@ -6,6 +6,7 @@
 import type { Action, State, Value } from '@relax-state/core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRelaxStore } from '../provider';
+import { resetRuntimeStore, setRuntimeStore } from '@relax-state/store';
 
 /**
  * Hook for read-only subscription to Relax atoms/selectors
@@ -59,9 +60,12 @@ export const useRelaxState = <T>(state: State<T>): readonly [T, (value: T) => vo
 export const useActions = <const P extends Action[]>(actions: P) => {
   const store = useRelaxStore();
   return useMemo(() => {
-    return actions.map(
-      (action) => (payload: Parameters<typeof action>[1]) => action(store, payload)
-    );
+    return actions.map((action) => (payload: Parameters<typeof action>[0]) => {
+      setRuntimeStore(store);
+      const result = action(payload);
+      resetRuntimeStore();
+      return result;
+    });
   }, [actions, store]) as {
     [K in keyof P]: P[K] extends Action<infer P, infer R> ? (payload: P) => R : never;
   };

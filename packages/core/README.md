@@ -4,7 +4,7 @@ Core state management library for Relax framework. Provides reactive state, comp
 
 ## Breaking Change: Store Exports Moved
 
-As of the store package split, `createStore`, `DefultStore`, and `Store` are **no longer exported from @relax-state/core**. Import them from `@relax-state/store` instead:
+As of the store package split, `createStore` and `Store` are **no longer exported from @relax-state/core**. Import them from `@relax-state/store` instead:
 
 ```typescript
 // Before
@@ -12,7 +12,7 @@ import { createStore, DefultStore, state } from '@relax-state/core';
 
 // After
 import { state } from '@relax-state/core';
-import { createStore, DefultStore } from '@relax-state/store';
+import { createStore } from '@relax-state/store';
 ```
 
 Install the store package: `pnpm add @relax-state/store`
@@ -54,17 +54,17 @@ store.effect(count, ({ oldValue, newValue }) => {
   console.log(`Count changed from ${oldValue} to ${newValue}`);
 });
 
-// Create and dispatch actions
+// Create and call actions (store is injected by the runtime)
 const increment = action(
-  (store, payload: { amount: number }) => {
+  (payload: { amount: number }, store) => {
     const current = store.get(count);
     store.set(count, current + payload.amount);
   },
   { name: 'counter/increment' }
 );
 
-// Call action directly
-increment(store, { amount: 5 });
+// Call action directly (ensure setRuntimeStore(store) is set, e.g. via RelaxProvider)
+increment({ amount: 5 });
 ```
 
 ## Core Concepts
@@ -142,27 +142,27 @@ import { createStore } from '@relax-state/store';
 const store = createStore();
 const count = state(0);
 
-// Define an action
+// Define an action (handler receives payload, then store)
 const increment = action(
-  (store, payload: { amount: number }) => {
+  (payload: { amount: number }, store) => {
     const current = store.get(count);
     store.set(count, current + payload.amount);
   },
   { name: 'counter/increment' }
 );
 
-// Call the action directly
-increment(store, { amount: 5 });
+// Call the action directly (store is injected by runtime, e.g. setRuntimeStore(store))
+increment({ amount: 5 });
 
 // Action with return value
 const getCount = action(
-  (store) => {
+  (_payload, store) => {
     return store.get(count);
   },
   { name: 'counter/get' }
 );
 
-const value = getCount(store);
+const value = getCount(null);
 console.log(value); // 5
 ```
 
@@ -204,14 +204,9 @@ removePlugin('logger');
 // Clear all plugins
 clearPlugins();
 
-// Use plugins at action level
-const myAction = action(
-  (store, payload) => { /* ... */ },
-  { name: 'myAction', plugins: [specificPlugin] }
-);
-
-// Call action directly - both global and action plugins will be called
-myAction(store, payload);
+// Define an action; global plugins run on every call
+const myAction = action((payload: unknown, store) => { /* ... */ }, { name: 'myAction' });
+myAction(payload);
 ```
 
 ## API Reference

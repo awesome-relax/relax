@@ -4,6 +4,7 @@
  * @module plugin
  */
 
+import type { Store } from '@relax-state/store';
 import type { Action } from './action';
 
 /**
@@ -16,13 +17,15 @@ const globalPlugins: Plugin[] = [];
  * Action context passed to plugin hooks
  * Contains information about the action being executed
  */
-export interface ActionContext<T = unknown, R = unknown> {
+export interface ActionContext<T = any, R = any> {
   /** Action name from options */
   name?: string;
   /** Full action object */
   type: Action<T, R>;
   /** Payload passed to the action */
-  payload: unknown;
+  payload: T;
+  /** Store instance */
+  store?: Store;
 }
 
 /**

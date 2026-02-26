@@ -65,11 +65,11 @@ import { action } from '@relax-state/core';
 import { useActions } from '@relax-state/react';
 
 // Define actions with types
-const addTodoAction = action((store, payload: { text: string }) => {
+const addTodoAction = action((payload: { text: string }, store) => {
   return { id: Date.now().toString(), text: payload.text, completed: false };
 }, { name: 'addTodo' });
 
-const toggleTodoAction = action((store, payload: { id: string }) => {
+const toggleTodoAction = action((payload: { id: string }, store) => {
   // toggle logic
 }, { name: 'toggleTodo' });
 
@@ -120,7 +120,7 @@ packages/relax-react/
 ## 📝 Notes
 
 - All hooks are fully reactive and will re-render your component when the underlying state changes.
-- Import state/computed/action from `@relax-state/core` and createStore/DefultStore from `@relax-state/store`.
+- Import state/computed/action from `@relax-state/core` and createStore from `@relax-state/store`.
 
 ## 📄 License
 

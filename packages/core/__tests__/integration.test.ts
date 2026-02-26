@@ -1,11 +1,15 @@
-import { createStore } from '@relax-state/store';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { createStore, setRuntimeStore, resetRuntimeStore } from '@relax-state/store';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { action, addPlugin, clearPlugins, state } from '../src/index';
 import type { Plugin } from '../src/plugin';
 
 describe('Action Integration', () => {
   beforeEach(() => {
     clearPlugins();
+  });
+
+  afterEach(() => {
+    resetRuntimeStore();
   });
 
   it('should complete full workflow with plugins', () => {
@@ -20,26 +24,27 @@ describe('Action Integration', () => {
     addPlugin(loggerPlugin);
 
     const store = createStore();
+    setRuntimeStore(store);
 
     // 2. Create state
     const countState = state(0, 'count');
 
     // 3. Create actions
     const incrementAction = action(
-      (s, payload: { delta: number }) => {
+      (payload: { delta: number }, s) => {
         const current = s.get(countState);
         s.set(countState, current + payload.delta);
       },
       { name: 'increment' }
     );
 
-    const getCountAction = action((s) => s.get(countState), { name: 'getCount' });
+    const getCountAction = action((_p: null, s) => s.get(countState), { name: 'getCount' });
 
     // 4. Call actions directly (no dispatch needed)
-    incrementAction(store, { delta: 10 });
-    incrementAction(store, { delta: 5 });
+    incrementAction({ delta: 10 });
+    incrementAction({ delta: 5 });
 
-    const count = getCountAction(store, null);
+    const count = getCountAction(null);
 
     // 5. Verify
     expect(count).toBe(15);
@@ -53,24 +58,6 @@ describe('Action Integration', () => {
     ]);
   });
 
-  it('should support action-level plugins', () => {
-    const store = createStore();
-
-    const actionLog: string[] = [];
-    const trackedAction = action(() => {}, {
-      name: 'tracked',
-      plugins: [
-        {
-          name: 'tracker',
-          onBefore: () => actionLog.push('tracked-start'),
-        },
-      ],
-    });
-
-    trackedAction(store, null);
-    expect(actionLog).toEqual(['tracked-start']);
-  });
-
   it('should handle errors and still call error hooks', () => {
     const errorLog: Error[] = [];
     const errorPlugin: Plugin = {
@@ -81,6 +68,7 @@ describe('Action Integration', () => {
     addPlugin(errorPlugin);
 
     const store = createStore();
+    setRuntimeStore(store);
 
     const failingAction = action(
       () => {
@@ -89,7 +77,7 @@ describe('Action Integration', () => {
       { name: 'fail' }
     );
 
-    expect(() => failingAction(store, null)).toThrow();
+    expect(() => failingAction(null)).toThrow();
     expect(errorLog).toHaveLength(1);
     expect(errorLog[0].message).toBe('Expected error');
   });
