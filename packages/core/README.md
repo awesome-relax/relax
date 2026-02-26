@@ -2,20 +2,6 @@
 
 Core state management library for Relax framework. Provides reactive state, computed values, effects, and actions.
 
-## Breaking Change: Store Exports Moved
-
-As of the store package split, `createStore` and `Store` are **no longer exported from @relax-state/core**. Import them from `@relax-state/store` instead:
-
-```typescript
-// Before
-import { createStore, state } from '@relax-state/core';
-
-// After
-import { state } from '@relax-state/core';
-import { createStore } from '@relax-state/store';
-```
-
-Install the store package: `pnpm add @relax-state/store`
 
 ## Installation
 
