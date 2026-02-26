@@ -238,7 +238,6 @@ export const createStore = (): Store => {
   return new Store();
 };
 
-
 const DefaultStore = createStore();
 /**
  * Runtime store instance for the Relax framework

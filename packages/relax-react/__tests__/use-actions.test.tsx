@@ -9,14 +9,14 @@ describe('useActions', () => {
     const _store = createStore();
 
     const addAction = action(
-      (payload: { text: string }, _s) => {
+      (_s, payload: { text: string }) => {
         return { id: '1', ...payload, completed: false };
       },
       { name: 'add' }
     );
 
     const toggleAction = action(
-      (_payload: { id: string }, _s) => {
+      (_s, _payload: { id: string }) => {
         // no return
       },
       { name: 'toggle' }
@@ -36,7 +36,7 @@ describe('useActions', () => {
     const _store = createStore();
 
     const addAction = action(
-      (payload: { value: number }, _s) => {
+      (_s, payload: { value: number }) => {
         return payload.value * 2;
       },
       { name: 'double' }
@@ -55,7 +55,7 @@ describe('useActions', () => {
     const _store = createStore();
 
     const asyncAction = action(
-      async (payload: { id: string }, _s) => {
+      async (_s, payload: { id: string }) => {
         return { id: payload.id, name: 'test' };
       },
       { name: 'fetch' }
@@ -72,7 +72,7 @@ describe('useActions', () => {
   it('should preserve action name in metadata', () => {
     const _store = createStore();
 
-    const testAction = action((_payload: { x: number }, _s) => {}, { name: 'myAction' });
+    const testAction = action((_s, _payload: { x: number }) => {}, { name: 'myAction' });
 
     renderHook(() => useActions([testAction]));
 

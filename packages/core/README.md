@@ -42,7 +42,7 @@ store.effect(count, ({ oldValue, newValue }) => {
 
 // Create and call actions (store is injected by the runtime)
 const increment = action(
-  (payload: { amount: number }, store) => {
+  (store, payload: { amount: number }) => {
     const current = store.get(count);
     store.set(count, current + payload.amount);
   },
@@ -121,6 +121,8 @@ console.log(store.get(doubled)); // 10
 
 Actions encapsulate business logic and can be dispatched.
 
+When P is void or undefined, call with no args. When P is optional (e.g. T | undefined), payload is optional.
+
 ```typescript
 import { state, action } from '@relax-state/core';
 import { createStore } from '@relax-state/store';
@@ -128,9 +130,9 @@ import { createStore } from '@relax-state/store';
 const store = createStore();
 const count = state(0);
 
-// Define an action (handler receives payload, then store)
+// Define an action (handler receives store, then optional payload)
 const increment = action(
-  (payload: { amount: number }, store) => {
+  (store, payload: { amount: number }) => {
     const current = store.get(count);
     store.set(count, current + payload.amount);
   },
@@ -142,13 +144,13 @@ increment({ amount: 5 });
 
 // Action with return value
 const getCount = action(
-  (_payload, store) => {
+  (store, _payload) => {
     return store.get(count);
   },
   { name: 'counter/get' }
 );
 
-const value = getCount(null);
+const value = getCount();  // no payload when P is void/undefined
 console.log(value); // 5
 ```
 

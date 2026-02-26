@@ -4,9 +4,9 @@
  */
 
 import type { Action, State, Value } from '@relax-state/core';
+import { resetRuntimeStore, setRuntimeStore } from '@relax-state/store';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRelaxStore } from '../provider';
-import { resetRuntimeStore, setRuntimeStore } from '@relax-state/store';
 
 /**
  * Hook for read-only subscription to Relax atoms/selectors
@@ -57,16 +57,17 @@ export const useRelaxState = <T>(state: State<T>): readonly [T, (value: T) => vo
   return [value, setState] as const;
 };
 
+/** Preserves each action's call signature (optional/required payload, no-arg for void). */
 export const useActions = <const P extends Action[]>(actions: P) => {
   const store = useRelaxStore();
-  return useMemo(() => {
-    return actions.map((action) => (payload: Parameters<typeof action>[0]) => {
-      setRuntimeStore(store);
-      const result = action(payload);
-      resetRuntimeStore();
-      return result;
-    });
-  }, [actions, store]) as {
-    [K in keyof P]: P[K] extends Action<infer P, infer R> ? (payload: P) => R : never;
-  };
+  return useMemo(
+    () =>
+      actions.map((action) => (...args: Parameters<P[number]>) => {
+        setRuntimeStore(store);
+        const result = (action as (...a: unknown[]) => unknown)(...args);
+        resetRuntimeStore();
+        return result;
+      }),
+    [actions, store]
+  ) as { [K in keyof P]: P[K] extends (...args: infer A) => infer R ? (...args: A) => R : never };
 };

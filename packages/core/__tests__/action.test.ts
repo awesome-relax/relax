@@ -1,4 +1,4 @@
-import { createStore, setRuntimeStore, resetRuntimeStore, type Store } from '@relax-state/store';
+import { createStore, resetRuntimeStore, type Store, setRuntimeStore } from '@relax-state/store';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { action } from '../src/action';
 import { addPlugin, clearPlugins, type Plugin } from '../src/plugin';
@@ -21,7 +21,7 @@ describe('Action', () => {
 
   it('should create callable action', () => {
     const testAction = action(
-      (payload: { delta: number }, s) => {
+      (s, payload: { delta: number }) => {
         const current = s.get(countState);
         s.set(countState, current + payload.delta);
       },
@@ -33,35 +33,35 @@ describe('Action', () => {
   });
 
   it('should create action with options', () => {
-    const testAction = action((_payload, _store) => {}, { name: 'Decrement Action' });
+    const testAction = action((_store, _payload) => {}, { name: 'Decrement Action' });
 
     expect(testAction.name).toBe('Decrement Action');
   });
 
   it('should support generic payload types', () => {
-    const stringAction = action<string, void>((_name, _store) => {});
+    const stringAction = action<string, void>((_store, _name) => {});
     expect(typeof stringAction).toBe('function');
 
-    const objectAction = action<{ x: number; y: number }, number>((coord, _store) => {
+    const objectAction = action<{ x: number; y: number }, number>((_store, coord) => {
       return coord.x + coord.y;
     });
     expect(typeof objectAction).toBe('function');
   });
 
   it('should execute action handler with payload', () => {
-    const incrementAction = action((payload: { delta: number }, s) => {
+    const incrementAction = action((s, payload: { delta: number }) => {
       const current = s.get(countState);
       s.set(countState, current + payload.delta);
     });
-    const getCountAction = action((_p: null, s) => s.get(countState));
+    const getCountAction = action((s) => s.get(countState));
 
     incrementAction({ delta: 5 });
 
-    expect(getCountAction(null)).toBe(5);
+    expect(getCountAction()).toBe(5);
   });
 
   it('should return result from action handler', () => {
-    const addAction = action((payload: { a: number; b: number }, _s) => {
+    const addAction = action((_s, payload: { a: number; b: number }) => {
       return payload.a + payload.b;
     });
 
@@ -83,7 +83,7 @@ describe('Action', () => {
     addPlugin(plugin);
 
     const testAction = action((_payload, _s) => {});
-    testAction(null);
+    testAction();
 
     expect(beforeCalled).toBe(true);
   });
@@ -100,7 +100,7 @@ describe('Action', () => {
     addPlugin(plugin);
 
     const testAction = action((_payload, _s) => {}, { name: 'my-action' });
-    testAction(null);
+    testAction();
 
     expect(capturedName).toBe('my-action');
   });
@@ -118,8 +118,8 @@ describe('Action', () => {
 
     addPlugin(plugin);
 
-    const testAction = action((_payload) => 42);
-    testAction(null);
+    const testAction = action((_store) => 42);
+    testAction();
 
     expect(afterCalled).toBe(true);
     expect(resultValue).toBe(42);
@@ -138,11 +138,11 @@ describe('Action', () => {
 
     addPlugin(plugin);
 
-    const testAction = action(() => {
+    const testAction = action((_store) => {
       throw new Error('Test error');
     });
 
-    expect(() => testAction(null)).toThrow('Test error');
+    expect(() => testAction()).toThrow('Test error');
     expect(errorCalled).toBe(true);
     expect(capturedError?.message).toBe('Test error');
   });

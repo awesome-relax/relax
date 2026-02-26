@@ -59,17 +59,18 @@ function DoubleCounter() {
 ### useActions
 
 A hook for using actions with full type safety. The returned tuple preserves each action's payload and return types.
+No-payload actions (P is void/undefined) are called with no args.
 
 ```typescript
 import { action } from '@relax-state/core';
 import { useActions } from '@relax-state/react';
 
 // Define actions with types
-const addTodoAction = action((payload: { text: string }, store) => {
+const addTodoAction = action((store, payload: { text: string }) => {
   return { id: Date.now().toString(), text: payload.text, completed: false };
 }, { name: 'addTodo' });
 
-const toggleTodoAction = action((payload: { id: string }, store) => {
+const toggleTodoAction = action((store, payload: { id: string }) => {
   // toggle logic
 }, { name: 'toggleTodo' });
 

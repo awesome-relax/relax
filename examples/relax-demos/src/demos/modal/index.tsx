@@ -50,28 +50,35 @@ const modalIconSelector = computed<string>({
   },
 });
 
-const openModal = action(({type, title, content}: {type: ModalData['type'], title: string, content: string}, store) => {
-  store.set(modalDataAtom, {
-    title,
-    content,
-    type,
-  });
-  store.set(modalVisibleAtom, true);
-}, { name: 'modal/openModal' });
-const closeModal = action((_:null, store) => {
-  store.set(modalVisibleAtom, false);
-}, { name: 'modal/closeModal' });
+const openModal = action(
+  (
+    store,
+    { type, title, content }: { type: ModalData['type']; title: string; content: string }
+  ) => {
+    store.set(modalDataAtom, {
+      title,
+      content,
+      type,
+    });
+    store.set(modalVisibleAtom, true);
+  },
+  { name: 'modal/openModal' }
+);
+const closeModal = action(
+  (store) => {
+    store.set(modalVisibleAtom, false);
+  },
+  { name: 'modal/closeModal' }
+);
 export const ModalDemo = () => {
   const t = useTranslation();
   const modalData = useRelaxValue(modalDataAtom);
   const { overlayClass, contentClass } = useRelaxValue(modalClassSelector);
   const modalIcon = useRelaxValue(modalIconSelector);
 
-
-
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
-      closeModal(null);
+      closeModal();
     }
   };
 
@@ -87,7 +94,9 @@ export const ModalDemo = () => {
           <button
             type="button"
             className="modalButton modalButtonInfo"
-            onClick={() => openModal({type: 'info', title: t('infoTitle'), content: t('infoContent')})}
+            onClick={() =>
+              openModal({ type: 'info', title: t('infoTitle'), content: t('infoContent') })
+            }
           >
             {t('infoModal')}
           </button>
@@ -95,7 +104,9 @@ export const ModalDemo = () => {
           <button
             type="button"
             className="modalButton modalButtonSuccess"
-            onClick={() => openModal({type: 'success', title: t('successTitle'), content: t('successContent')})}
+            onClick={() =>
+              openModal({ type: 'success', title: t('successTitle'), content: t('successContent') })
+            }
           >
             {t('successModal')}
           </button>
@@ -103,7 +114,9 @@ export const ModalDemo = () => {
           <button
             type="button"
             className="modalButton modalButtonWarning"
-            onClick={() => openModal({type: 'warning', title: t('warningTitle'), content: t('warningContent')})}
+            onClick={() =>
+              openModal({ type: 'warning', title: t('warningTitle'), content: t('warningContent') })
+            }
           >
             {t('warningModal')}
           </button>
@@ -111,7 +124,9 @@ export const ModalDemo = () => {
           <button
             type="button"
             className="modalButton modalButtonError"
-            onClick={() => openModal({type: 'error', title: t('errorTitle'), content: t('errorContent')})}
+            onClick={() =>
+              openModal({ type: 'error', title: t('errorTitle'), content: t('errorContent') })
+            }
           >
             {t('errorModal')}
           </button>
@@ -138,7 +153,7 @@ export const ModalDemo = () => {
             <button
               type="button"
               className="modalCloseButton"
-              onClick={() => closeModal(null)}
+              onClick={() => closeModal()}
               aria-label={t('closeModal')}
             >
               ×
@@ -150,7 +165,7 @@ export const ModalDemo = () => {
           </div>
 
           <div className="modalFooter">
-            <button type="button" className="modalConfirmButton" onClick={() => closeModal(null)}>
+            <button type="button" className="modalConfirmButton" onClick={() => closeModal()}>
               {t('confirm')}
             </button>
           </div>

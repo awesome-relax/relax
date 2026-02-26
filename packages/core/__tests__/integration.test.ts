@@ -1,4 +1,4 @@
-import { createStore, setRuntimeStore, resetRuntimeStore } from '@relax-state/store';
+import { createStore, resetRuntimeStore, setRuntimeStore } from '@relax-state/store';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { action, addPlugin, clearPlugins, state } from '../src/index';
 import type { Plugin } from '../src/plugin';
@@ -31,20 +31,20 @@ describe('Action Integration', () => {
 
     // 3. Create actions
     const incrementAction = action(
-      (payload: { delta: number }, s) => {
+      (s, payload: { delta: number }) => {
         const current = s.get(countState);
         s.set(countState, current + payload.delta);
       },
       { name: 'increment' }
     );
 
-    const getCountAction = action((_p: null, s) => s.get(countState), { name: 'getCount' });
+    const getCountAction = action((s) => s.get(countState), { name: 'getCount' });
 
     // 4. Call actions directly (no dispatch needed)
     incrementAction({ delta: 10 });
     incrementAction({ delta: 5 });
 
-    const count = getCountAction(null);
+    const count = getCountAction();
 
     // 5. Verify
     expect(count).toBe(15);
@@ -77,7 +77,7 @@ describe('Action Integration', () => {
       { name: 'fail' }
     );
 
-    expect(() => failingAction(null)).toThrow();
+    expect(() => failingAction()).toThrow();
     expect(errorLog).toHaveLength(1);
     expect(errorLog[0].message).toBe('Expected error');
   });

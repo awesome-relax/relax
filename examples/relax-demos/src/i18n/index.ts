@@ -1,5 +1,6 @@
 import { action, computed, state } from '@relax-state/core';
 import { useRelaxValue } from '@relax-state/react';
+import type { Store } from '@relax-state/store';
 
 // Supported languages
 export type Language = 'en' | 'zh';
@@ -13,9 +14,12 @@ export const currentLanguageSelector = computed<Language>({
 });
 
 // Language switcher
-export const switchLanguage = action((lang: Language, store) => {
-  store.set(languageAtom, lang);
-}, { name: 'i18n/switchLanguage' });
+export const switchLanguage = action(
+  (store: Store, lang: Language) => {
+    store.set(languageAtom, lang);
+  },
+  { name: 'i18n/switchLanguage' }
+);
 
 // Hook for getting current language
 export const useLanguage = () => {

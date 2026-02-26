@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './index.scss';
 import { action, addPlugin, computed, type Plugin, state } from '@relax-state/core';
-import { useRelaxValue, useActions } from '@relax-state/react';
+import { useActions, useRelaxValue } from '@relax-state/react';
 import { useTranslation } from '../../i18n/useTranslation';
 
 interface Todo {
@@ -36,7 +36,7 @@ const pendingCountSelector = computed<number>({
 
 // Actions
 const addTodoAction = action(
-  (payload: { text: string }, store) => {
+  (store, payload: { text: string }) => {
     const newTodo: Todo = {
       id: Date.now().toString(),
       text: payload.text,
@@ -50,7 +50,7 @@ const addTodoAction = action(
 );
 
 const toggleTodoAction = action(
-  (payload: { id: string }, store) => {
+  (store, payload: { id: string }) => {
     const currentTodos = store.get(todoListAtom) || [];
     const updated = currentTodos.map((todo: Todo) =>
       todo.id === payload.id ? { ...todo, completed: !todo.completed } : todo
@@ -61,7 +61,7 @@ const toggleTodoAction = action(
 );
 
 const removeTodoAction = action(
-  (payload: { id: string }, store) => {
+  (store, payload: { id: string }) => {
     const currentTodos = store.get(todoListAtom) || [];
     store.set(
       todoListAtom,
@@ -92,7 +92,6 @@ export const TodoList = () => {
     setInputValue('');
   };
 
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       onAddTodo();
@@ -115,7 +114,12 @@ export const TodoList = () => {
           onKeyDown={handleKeyDown}
           placeholder={t('inputPlaceholder')}
         />
-        <button type="button" className="addButton" onClick={onAddTodo} disabled={!inputValue.trim()}>
+        <button
+          type="button"
+          className="addButton"
+          onClick={onAddTodo}
+          disabled={!inputValue.trim()}
+        >
           {t('addButton')}
         </button>
       </div>

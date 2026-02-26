@@ -1,1 +1,7 @@
-export { createStore, getRuntimeStore, resetRuntimeStore, type Store, setRuntimeStore } from './store';
+export {
+  createStore,
+  getRuntimeStore,
+  resetRuntimeStore,
+  type Store,
+  setRuntimeStore,
+} from './store';

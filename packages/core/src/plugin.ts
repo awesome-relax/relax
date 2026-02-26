@@ -23,7 +23,7 @@ export interface ActionContext<T = any, R = any> {
   /** Full action object */
   type: Action<T, R>;
   /** Payload passed to the action */
-  payload: T;
+  payload?: T;
   /** Store instance */
   store?: Store;
 }
