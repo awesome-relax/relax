@@ -1,7 +1,6 @@
-import { computed, state } from '@relax-state/core';
+import { action, computed, state } from '@relax-state/core';
 import { useRelaxValue } from '@relax-state/react';
-import { DefultStore } from '@relax-state/store';
-import { useCallback, useEffect, useRef } from 'react';
+import {  useEffect, useRef } from 'react';
 import { useTranslation } from '../../i18n/useTranslation';
 import './index.scss';
 
@@ -37,7 +36,26 @@ const fetchMockData = (page: number): ListItem[] => {
     };
   });
 };
+const fetchList = action(({loading, hasMore}: {loading: boolean, hasMore: boolean}, store) => {
+  if (loading || !hasMore) {
+    return;
+  }
 
+  store.set(loadingAtom, true);
+  
+  setTimeout(() => {
+    const currentPage = store.get(pageAtom);
+    const newData = fetchMockData(currentPage);
+    const currentItems = store.get(listAtom);
+    store.set(listAtom, [...currentItems, ...newData]);
+    store.set(pageAtom, currentPage + 1);
+    store.set(loadingAtom, false);
+  }, 1000);
+});
+const resetList = action((_:null,store) => {
+  store.set(pageAtom, 1);
+  store.set(listAtom, []);
+}, { name: 'infinite-scroll/resetList' });
 export const InfiniteScroll = () => {
   const t = useTranslation();
   const items = useRelaxValue(listAtom);
@@ -47,36 +65,13 @@ export const InfiniteScroll = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
-  // 模拟API请求
-  const fetchList = useCallback(() => {
-    if (loading || !hasMore) {
-      return;
-    }
-
-    DefultStore.set(loadingAtom, true);
-
-    // 模拟网络延迟
-    setTimeout(() => {
-      const currentPage = DefultStore.get(pageAtom);
-      const newData = fetchMockData(currentPage);
-      const currentItems = DefultStore.get(listAtom);
-      DefultStore.set(listAtom, [...currentItems, ...newData]);
-      DefultStore.set(pageAtom, currentPage + 1);
-      DefultStore.set(loadingAtom, false);
-    }, 1000);
-  }, [loading, hasMore]);
-
-  // 重置列表
-  const resetList = () => {
-    DefultStore.set(pageAtom, 1);
-    DefultStore.set(listAtom, []);
-  };
+ 
 
   useEffect(() => {
     if (items.length === 0 && !loading) {
-      fetchList();
+      fetchList({loading: false, hasMore: true});
     }
-  }, [items.length, loading, fetchList]);
+  }, [items.length, loading]);
 
   useEffect(() => {
     const options = {
@@ -88,7 +83,7 @@ export const InfiniteScroll = () => {
     const handleIntersection = (entries: IntersectionObserverEntry[]) => {
       const [entry] = entries;
       if (entry.isIntersecting && hasMore && !loading) {
-        fetchList();
+        fetchList({loading: false, hasMore: true});
       }
     };
 
@@ -103,14 +98,14 @@ export const InfiniteScroll = () => {
         observerRef.current.disconnect();
       }
     };
-  }, [hasMore, loading, fetchList]);
+  }, [hasMore, loading,]);
 
   return (
     <div className="infiniteScroll">
       <div className="infiniteScrollHeader">
         <h2 className="infiniteScrollTitle">{t('title')}</h2>
         <p className="infiniteScrollSubtitle">{t('subtitle')}</p>
-        <button type="button" className="resetButton" onClick={resetList}>
+        <button type="button" className="resetButton" onClick={() => resetList(null)}>
           {t('resetButton')}
         </button>
       </div>
