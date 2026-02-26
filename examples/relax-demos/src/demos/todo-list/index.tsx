@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import './index.scss';
 import { action, addPlugin, computed, type Plugin, state } from '@relax-state/core';
-import { createStore } from '@relax-state/store';
 import { useRelaxValue } from '@relax-state/react';
+import { DefultStore } from '@relax-state/store';
 import { useTranslation } from '../../i18n/useTranslation';
 
 interface Todo {
@@ -23,8 +23,6 @@ const loggerPlugin: Plugin = {
 };
 
 addPlugin(loggerPlugin);
-
-const todoStore = createStore();
 
 // 状态定义
 const todoListAtom = state<Todo[]>([]);
@@ -86,16 +84,16 @@ export const TodoList = () => {
       return;
     }
 
-    addTodoAction(todoStore, { text: inputValue.trim() });
+    addTodoAction(DefultStore, { text: inputValue.trim() });
     setInputValue('');
   };
 
   const toggleTodo = (id: string) => {
-    toggleTodoAction(todoStore, { id });
+    toggleTodoAction(DefultStore, { id });
   };
 
   const removeTodo = (id: string) => {
-    removeTodoAction(todoStore, { id });
+    removeTodoAction(DefultStore, { id });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

@@ -1,13 +1,6 @@
-import { beforeEach, describe, expect, it } from 'vitest';
-import {
-  addPlugin,
-  clearPlugins,
-  computed,
-  getPlugins,
-  removePlugin,
-  state,
-} from '../src/index';
 import { createStore } from '@relax-state/store';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { addPlugin, clearPlugins, computed, getPlugins, removePlugin, state } from '../src/index';
 import type { Plugin } from '../src/plugin';
 
 describe('store', () => {

@@ -1,7 +1,7 @@
 import './index.scss';
 import { computed, state } from '@relax-state/core';
-import { DefultStore } from '@relax-state/store';
 import { useRelaxValue } from '@relax-state/react';
+import { DefultStore } from '@relax-state/store';
 import { useTranslation } from '../../i18n/useTranslation';
 
 interface ModalData {
@@ -29,7 +29,6 @@ const modalClassSelector = computed<{
   get: (get) => {
     const data = get(modalDataAtom);
     const visible = get(modalVisibleAtom);
-    console.log('modalClassSelector', data, visible);
     return {
       modalClass: `modal ${visible ? 'modalVisible' : ''}`,
       overlayClass: `modalOverlay ${visible ? 'modalOverlayVisible' : ''}`,
@@ -68,7 +67,6 @@ export const ModalDemo = () => {
     });
     DefultStore.set(modalVisibleAtom, true);
   };
-  console.log('modalData', modalData, overlayClass, contentClass);
   const closeModal = () => {
     DefultStore.set(modalVisibleAtom, false);
   };

@@ -1,6 +1,6 @@
+import { DefultStore } from '@relax-state/store';
 import { describe, expect, it } from 'vitest';
 import { state } from '../src/index';
-import { DefultStore } from '@relax-state/store';
 
 describe('state core', () => {
   it('set/get should work and trigger effects', () => {

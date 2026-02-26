@@ -14,8 +14,8 @@
  * ```
  */
 
-import { type ActionContext, getPlugins, type Plugin } from './plugin';
 import type { Store } from '@relax-state/store';
+import { type ActionContext, getPlugins, type Plugin } from './plugin';
 
 /**
  * Action handler function type

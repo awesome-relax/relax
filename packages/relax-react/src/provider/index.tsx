@@ -3,22 +3,22 @@
  * Provides Relax store context to React components
  */
 
-import { DefultStore, type Store } from '@relax-state/store';
-import { createContext, type ReactNode, useContext } from 'react';
+import { createStore, DefultStore, type Store } from '@relax-state/store';
+import { createContext, type ReactNode, useContext, useMemo } from 'react';
 
 /** Context for storing the Relax store instance */
 const Context = createContext<Store>(DefultStore);
 
 /**
  * Provider component that wraps React application and provides Relax store
- * @param props.store - The Relax store instance to use (defaults to DefultStore)
  * @param props.children - Child components
  */
-export const RelaxProvider: React.FC<{ store: Store; children?: ReactNode }> = ({
+export const RelaxProvider: React.FC<{ store?: Store; children?: ReactNode }> = ({
   store,
   children,
 }) => {
-  return <Context.Provider value={store}>{children}</Context.Provider>;
+  const _store = useMemo(() => store ?? createStore(), [store]);
+  return <Context.Provider value={_store}>{children}</Context.Provider>;
 };
 
 /**

@@ -1,6 +1,6 @@
+import { createStore } from '@relax-state/store';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { action, addPlugin, clearPlugins, state } from '../src/index';
-import { createStore } from '@relax-state/store';
 import type { Plugin } from '../src/plugin';
 
 describe('Action Integration', () => {

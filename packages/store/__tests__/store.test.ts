@@ -1,5 +1,5 @@
-import { createStore } from '../src';
 import { state } from '@relax-state/core';
+import { createStore } from '../src';
 
 describe('store', () => {
   it('verifies store get/set roundtrip', () => {

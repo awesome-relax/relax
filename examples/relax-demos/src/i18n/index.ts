@@ -1,6 +1,6 @@
 import { computed, state } from '@relax-state/core';
-import { DefultStore } from '@relax-state/store';
 import { useRelaxValue } from '@relax-state/react';
+import { DefultStore } from '@relax-state/store';
 
 // Supported languages
 export type Language = 'en' | 'zh';
