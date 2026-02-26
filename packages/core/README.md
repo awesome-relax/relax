@@ -8,7 +8,7 @@ As of the store package split, `createStore` and `Store` are **no longer exporte
 
 ```typescript
 // Before
-import { createStore, DefultStore, state } from '@relax-state/core';
+import { createStore, state } from '@relax-state/core';
 
 // After
 import { state } from '@relax-state/core';

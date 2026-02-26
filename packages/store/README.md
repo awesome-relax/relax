@@ -49,17 +49,20 @@ import { createStore } from '@relax-state/store';
 const store = createStore();
 ```
 
-### `DefultStore`
+### `getRuntimeStore()` / `setRuntimeStore(store)` / `resetRuntimeStore()`
 
-Singleton store instance. Use when you don't need multiple stores.
+Runtime store used by actions and React (e.g. `RelaxProvider`). Call `setRuntimeStore(store)` before running actions when not using React; in React, the provider sets it from context.
 
 ```typescript
-import { DefultStore } from '@relax-state/store';
-import { state } from '@relax-state/core';
+import { createStore, setRuntimeStore, getRuntimeStore } from '@relax-state/store';
+import { state, action } from '@relax-state/core';
 
+const store = createStore();
+setRuntimeStore(store);
 const count = state(0);
-DefultStore.set(count, 5);
-console.log(DefultStore.get(count)); // 5
+const increment = action((payload: { n: number }, s) => s.set(count, s.get(count) + payload.n), { name: 'increment' });
+increment({ n: 5 });
+console.log(getRuntimeStore().get(count)); // 5
 ```
 
 ### `Store`

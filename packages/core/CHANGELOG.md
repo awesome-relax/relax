@@ -4,16 +4,16 @@
 
 ### Breaking Changes
 
-- **Store exports removed**: `createStore`, `DefultStore`, and `Store` are no longer exported from @relax-state/core. Import them from `@relax-state/store` instead.
+- **Store exports removed**: `createStore` and `Store` are no longer exported from @relax-state/core. Import them from `@relax-state/store` instead.
 
   Migration:
   ```typescript
   // Before
-  import { createStore, DefultStore, state } from '@relax-state/core';
+  import { createStore, state } from '@relax-state/core';
 
   // After
   import { state } from '@relax-state/core';
-  import { createStore, DefultStore } from '@relax-state/store';
+  import { createStore } from '@relax-state/store';
   ```
 
   Install: `pnpm add @relax-state/store`
