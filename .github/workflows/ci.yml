@@ -1,9 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - '**'
@@ -39,5 +36,4 @@ jobs:
 
       - name: Build
         run: pnpm -w run build
-
 

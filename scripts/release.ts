@@ -54,11 +54,18 @@ const release = () => {
   run('git', ['add', '-A']);
   run('git', ['commit', '-m', 'chore(release): version packages'], { allowFail: true });
 
-  // Publish to npm (will create git tags)
-  run('pnpm', ['-w', 'exec', 'changeset', 'publish']);
+  // Publish to npm (no per-package git tags)
+  run('pnpm', ['-w', 'exec', 'changeset', 'publish', '--no-git-tag']);
+
+  // Create a single aggregate tag for the release (UTC timestamp)
+  const now = new Date();
+  const pad = (value: number) => String(value).padStart(2, '0');
+  const tag = `release-${now.getUTCFullYear()}${pad(now.getUTCMonth() + 1)}${pad(
+    now.getUTCDate()
+  )}-${pad(now.getUTCHours())}${pad(now.getUTCMinutes())}`;
+  run('git', ['tag', '-a', tag, '-m', `Release ${tag}`]);
 
   // Push commit and tags
-  run('git', ['push']);
   run('git', ['push', '--follow-tags']);
 };
 
