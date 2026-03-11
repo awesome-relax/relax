@@ -32,7 +32,13 @@ import { type ActionContext, getPlugins, type Plugin } from './plugin';
  * };
  * ```
  */
-export type ActionHandler<P, R, S extends Store = Store> = (store: S, payload?: P) => R;
+export type ActionHandler<P, R, S extends Store = Store> = IsAny<P> extends true
+  ? (store: S, payload?: P) => R
+  : [P] extends [undefined]
+    ? (store: S) => R
+    : undefined extends P
+      ? (store: S, payload?: P) => R
+      : (store: S, payload: P) => R;
 
 /**
  * Action interface
@@ -54,14 +60,19 @@ export type ActionHandler<P, R, S extends Store = Store> = (store: S, payload?: 
  * - When undefined extends P (optional payload): action(payload?) optional param.
  * - Otherwise: action(payload) required.
  */
+type IsAny<T> = 0 extends 1 & T ? true : false;
+
+// biome-ignore lint/suspicious/noExplicitAny: default any preserves backwards-compatible untyped actions.
 export type Action<P = any, R = any> = {
   /** Optional readable name for debugging and logging */
   name?: string;
-} & ([P] extends [undefined | void]
-  ? () => R
-  : undefined extends P
-    ? (payload?: P) => R
-    : (payload: P) => R);
+} & (IsAny<P> extends true
+  ? (payload?: P) => R
+  : [P] extends [undefined]
+    ? () => R
+    : undefined extends P
+      ? (payload?: P) => R
+      : (payload: P) => R);
 
 /**
  * Action options for creating actions
@@ -123,10 +134,16 @@ export interface ActionOptions {
  * refresh();
  * ```
  */
-export const action = <P, R>(
-  handler: ActionHandler<P, R>,
+export function action<R>(handler: (store: Store) => R, options?: ActionOptions): Action<void, R>;
+export function action<P, R>(
+  handler: (store: Store, payload: P) => R,
   options?: ActionOptions
-): Action<P, R> => {
+): Action<P, R>;
+export function action<P, R>(
+  handler: (store: Store, payload?: P) => R,
+  options?: ActionOptions
+): Action<P | undefined, R>;
+export function action<P, R>(handler: ActionHandler<P, R>, options?: ActionOptions): Action<P, R> {
   const name = options?.name;
 
   // Create the callable function (payload optional when P is undefined)
@@ -172,4 +189,4 @@ export const action = <P, R>(
   Object.defineProperty(actionFn, 'name', { value: name, writable: false, configurable: false });
 
   return actionFn as Action<P, R>;
-};
+}

@@ -3,8 +3,8 @@
  * Provides reactive integration between Relax state and React components
  */
 
-import type { Action, State, Value } from '@relax-state/core';
-import { resetRuntimeStore, setRuntimeStore } from '@relax-state/store';
+import type { State, Value } from '@relax-state/core';
+import { resetRuntimeStore, type Store, setRuntimeStore } from '@relax-state/store';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRelaxStore } from '../provider';
 
@@ -57,17 +57,43 @@ export const useRelaxState = <T>(state: State<T>): readonly [T, (value: T) => vo
   return [value, setState] as const;
 };
 
+type AnyFn = (...args: unknown[]) => unknown;
+
+type BoundAction<TAction> = TAction extends AnyFn
+  ? (...args: Parameters<TAction>) => ReturnType<TAction>
+  : never;
+
+type BoundActions<TActions extends readonly unknown[]> = {
+  [K in keyof TActions]: BoundAction<TActions[K]>;
+};
+
+type IsTuple<TActions extends readonly unknown[]> = number extends TActions['length']
+  ? false
+  : true;
+
+type EnsureTuple<TActions extends readonly unknown[]> = IsTuple<TActions> extends true
+  ? TActions
+  : never;
+
+const bindAction = <TAction extends AnyFn>(store: Store, action: TAction): BoundAction<TAction> => {
+  const bound = (...args: Parameters<TAction>): ReturnType<TAction> => {
+    setRuntimeStore(store);
+    try {
+      return action(...args);
+    } finally {
+      resetRuntimeStore();
+    }
+  };
+  return bound as BoundAction<TAction>;
+};
+
 /** Preserves each action's call signature (optional/required payload, no-arg for void). */
-export const useActions = <const P extends Action[]>(actions: P) => {
+export const useActions = <const P extends readonly AnyFn[]>(
+  actions: EnsureTuple<P> & P
+): BoundActions<P> => {
   const store = useRelaxStore();
   return useMemo(
-    () =>
-      actions.map((action) => (...args: Parameters<P[number]>) => {
-        setRuntimeStore(store);
-        const result = (action as (...a: unknown[]) => unknown)(...args);
-        resetRuntimeStore();
-        return result;
-      }),
-    [actions, store]
-  ) as { [K in keyof P]: P[K] extends (...args: infer A) => infer R ? (...args: A) => R : never };
+    () => actions.map((action) => bindAction(store, action)) as BoundActions<P>,
+    [...actions, store, actions.map]
+  );
 };
