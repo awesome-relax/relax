@@ -3,6 +3,10 @@ import { assemble } from 't-packer';
 const build = () => {
   return Promise.all([
     assemble({
+      src: 'packages/store/src',
+      output: 'packages/store/dist',
+    }),
+    assemble({
       src: 'packages/relax-react/src',
       output: 'packages/relax-react/dist',
     }),

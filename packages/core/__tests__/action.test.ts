@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { createStore, resetRuntimeStore, type Store, setRuntimeStore } from '@relax-state/store';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { action } from '../src/action';
 import { addPlugin, clearPlugins, type Plugin } from '../src/plugin';
 import { state } from '../src/state';
-import { createStore, type Store } from '../src/store';
 
 describe('Action', () => {
   let store: Store;
@@ -11,7 +11,12 @@ describe('Action', () => {
   beforeEach(() => {
     clearPlugins();
     store = createStore();
+    setRuntimeStore(store);
     countState = state(0, 'count');
+  });
+
+  afterEach(() => {
+    resetRuntimeStore();
   });
 
   it('should create callable action', () => {
@@ -28,16 +33,16 @@ describe('Action', () => {
   });
 
   it('should create action with options', () => {
-    const testAction = action((store, payload) => {}, { name: 'Decrement Action' });
+    const testAction = action((_store, _payload) => {}, { name: 'Decrement Action' });
 
     expect(testAction.name).toBe('Decrement Action');
   });
 
   it('should support generic payload types', () => {
-    const stringAction = action<string, void>((store, name) => {});
+    const stringAction = action<string, void>((_store, _name) => {});
     expect(typeof stringAction).toBe('function');
 
-    const objectAction = action<{ x: number; y: number }, number>((store, coord) => {
+    const objectAction = action<{ x: number; y: number }, number>((_store, coord) => {
       return coord.x + coord.y;
     });
     expect(typeof objectAction).toBe('function');
@@ -48,18 +53,19 @@ describe('Action', () => {
       const current = s.get(countState);
       s.set(countState, current + payload.delta);
     });
+    const getCountAction = action((s) => s.get(countState));
 
-    incrementAction(store, { delta: 5 });
+    incrementAction({ delta: 5 });
 
-    expect(store.get(countState)).toBe(5);
+    expect(getCountAction()).toBe(5);
   });
 
   it('should return result from action handler', () => {
-    const addAction = action((s, payload: { a: number; b: number }) => {
+    const addAction = action((_s, payload: { a: number; b: number }) => {
       return payload.a + payload.b;
     });
 
-    const result = addAction(store, { a: 3, b: 7 });
+    const result = addAction({ a: 3, b: 7 });
 
     expect(result).toBe(10);
   });
@@ -76,8 +82,8 @@ describe('Action', () => {
 
     addPlugin(plugin);
 
-    const testAction = action((s) => {});
-    testAction(store, null);
+    const testAction = action((_payload, _s) => {});
+    testAction();
 
     expect(beforeCalled).toBe(true);
   });
@@ -93,8 +99,8 @@ describe('Action', () => {
 
     addPlugin(plugin);
 
-    const testAction = action((s) => {}, { name: 'my-action' });
-    testAction(store, null);
+    const testAction = action((_payload, _s) => {}, { name: 'my-action' });
+    testAction();
 
     expect(capturedName).toBe('my-action');
   });
@@ -104,7 +110,7 @@ describe('Action', () => {
     let resultValue: unknown;
     const plugin: Plugin = {
       name: 'test',
-      onAfter: (ctx, result) => {
+      onAfter: (_ctx, result) => {
         afterCalled = true;
         resultValue = result;
       },
@@ -112,8 +118,8 @@ describe('Action', () => {
 
     addPlugin(plugin);
 
-    const testAction = action(() => 42);
-    testAction(store, null);
+    const testAction = action((_store) => 42);
+    testAction();
 
     expect(afterCalled).toBe(true);
     expect(resultValue).toBe(42);
@@ -124,7 +130,7 @@ describe('Action', () => {
     let capturedError: Error | null = null;
     const plugin: Plugin = {
       name: 'test',
-      onError: (ctx, error) => {
+      onError: (_ctx, error) => {
         errorCalled = true;
         capturedError = error;
       },
@@ -132,52 +138,12 @@ describe('Action', () => {
 
     addPlugin(plugin);
 
-    const testAction = action(() => {
+    const testAction = action((_store) => {
       throw new Error('Test error');
     });
 
-    expect(() => testAction(store, null)).toThrow('Test error');
+    expect(() => testAction()).toThrow('Test error');
     expect(errorCalled).toBe(true);
     expect(capturedError?.message).toBe('Test error');
-  });
-
-  it('should call action-level plugins', () => {
-    let actionPluginCalled = false;
-    const actionPlugin: Plugin = {
-      name: 'action-plugin',
-      onBefore: () => {
-        actionPluginCalled = true;
-      },
-    };
-
-    const testAction = action(() => {}, { plugins: [actionPlugin] });
-    testAction(store, null);
-
-    expect(actionPluginCalled).toBe(true);
-  });
-
-  it('should merge global plugins and action plugins', () => {
-    let globalPluginCalled = false;
-    let actionPluginCalled = false;
-
-    const globalPlugin: Plugin = {
-      name: 'global-plugin',
-      onBefore: () => {
-        globalPluginCalled = true;
-      },
-    };
-    const actionPlugin: Plugin = {
-      name: 'action-plugin',
-      onBefore: () => {
-        actionPluginCalled = true;
-      },
-    };
-
-    addPlugin(globalPlugin);
-    const testAction = action(() => {}, { plugins: [actionPlugin] });
-    testAction(store, null);
-
-    expect(globalPluginCalled).toBe(true);
-    expect(actionPluginCalled).toBe(true);
   });
 });

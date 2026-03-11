@@ -4,6 +4,7 @@
  * @module plugin
  */
 
+import type { Store } from '@relax-state/store';
 import type { Action } from './action';
 
 /**
@@ -22,7 +23,9 @@ export interface ActionContext<T = any, R = any> {
   /** Full action object */
   type: Action<T, R>;
   /** Payload passed to the action */
-  payload: unknown;
+  payload?: T;
+  /** Store instance */
+  store?: Store;
 }
 
 /**

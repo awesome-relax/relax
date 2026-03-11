@@ -11,7 +11,7 @@
  * ```
  */
 
-import { type ComputedFn, RELAX_NODES, type State, type Value } from './state';
+import { type ComputedFn, RELAX_NODES, type State, type Value } from '@relax-state/core';
 
 /**
  * Store class for managing reactive state
@@ -53,13 +53,6 @@ export class Store {
   private computing: Set<string> = new Set();
 
   /**
-   * Creates a new Store instance
-   */
-  constructor() {
-    // No initialization needed
-  }
-
-  /**
    * Gets the value of a state
    * For computed values, this will compute and cache the value, tracking dependencies
    *
@@ -98,7 +91,7 @@ export class Store {
 
       this.computing.add(id);
       try {
-        const dependencies = new Set<Value<any>>();
+        const dependencies = new Set<Value<unknown>>();
         const get = <U>(state: Value<U>): U => {
           // Track dependency relationship
           dependencies.add(state);
@@ -245,21 +238,34 @@ export const createStore = (): Store => {
   return new Store();
 };
 
+const DefaultStore = createStore();
 /**
- * Default store instance for the Relax framework
+ * Runtime store instance for the Relax framework
  * This is a singleton store that can be used when you don't need multiple stores
  * @example
  * ```typescript
  * // Using the default store
- * import { DefultStore } from '@relax-state/core';
+ * import { getRuntimeStore } from '@relax-state/store';
  *
  * const count = state(0);
- * DefultStore.set(count, 5);
- * console.log(DefultStore.get(count)); // 5
+ * getRuntimeStore().set(count, 5);
+ * console.log(getRuntimeStore().get(count)); // 5
  *
  * // Recommended: create your own store
  * const store = createStore();
  * store.set(count, 10);
  * ```
  */
-export const DefultStore = createStore();
+let RuntimeStore = DefaultStore;
+
+export const setRuntimeStore = (store: Store) => {
+  RuntimeStore = store;
+};
+
+export const getRuntimeStore = () => {
+  return RuntimeStore;
+};
+
+export const resetRuntimeStore = () => {
+  RuntimeStore = DefaultStore;
+};

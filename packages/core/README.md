@@ -2,6 +2,7 @@
 
 Core state management library for Relax framework. Provides reactive state, computed values, effects, and actions.
 
+
 ## Installation
 
 ```bash
@@ -13,7 +14,8 @@ pnpm add @relax-state/core
 ## Quick Start
 
 ```typescript
-import { state, computed, createStore, action } from '@relax-state/core';
+import { state, computed, action } from '@relax-state/core';
+import { createStore } from '@relax-state/store';
 
 // Create state
 const count = state(0);
@@ -38,7 +40,7 @@ store.effect(count, ({ oldValue, newValue }) => {
   console.log(`Count changed from ${oldValue} to ${newValue}`);
 });
 
-// Create and dispatch actions
+// Create and call actions (store is injected by the runtime)
 const increment = action(
   (store, payload: { amount: number }) => {
     const current = store.get(count);
@@ -47,8 +49,8 @@ const increment = action(
   { name: 'counter/increment' }
 );
 
-// Call action directly
-increment(store, { amount: 5 });
+// Call action directly (ensure setRuntimeStore(store) is set, e.g. via RelaxProvider)
+increment({ amount: 5 });
 ```
 
 ## Core Concepts
@@ -74,7 +76,8 @@ const debugState = state(0, 'counter');
 The store manages all state and effects.
 
 ```typescript
-import { createStore, state } from '@relax-state/core';
+import { state } from '@relax-state/core';
+import { createStore } from '@relax-state/store';
 
 const store = createStore();
 const count = state(0);
@@ -100,6 +103,7 @@ Computed values are derived from other states.
 
 ```typescript
 import { state, computed } from '@relax-state/core';
+import { createStore } from '@relax-state/store';
 
 const count = state(0);
 const doubled = computed({
@@ -117,13 +121,16 @@ console.log(store.get(doubled)); // 10
 
 Actions encapsulate business logic and can be dispatched.
 
+When P is void or undefined, call with no args. When P is optional (e.g. T | undefined), payload is optional.
+
 ```typescript
-import { state, action, dispatch, createStore } from '@relax-state/core';
+import { state, action } from '@relax-state/core';
+import { createStore } from '@relax-state/store';
 
 const store = createStore();
 const count = state(0);
 
-// Define an action
+// Define an action (handler receives store, then optional payload)
 const increment = action(
   (store, payload: { amount: number }) => {
     const current = store.get(count);
@@ -132,18 +139,18 @@ const increment = action(
   { name: 'counter/increment' }
 );
 
-// Call the action directly
-increment(store, { amount: 5 });
+// Call the action directly (store is injected by runtime, e.g. setRuntimeStore(store))
+increment({ amount: 5 });
 
 // Action with return value
 const getCount = action(
-  (store) => {
+  (store, _payload) => {
     return store.get(count);
   },
   { name: 'counter/get' }
 );
 
-const value = getCount(store);
+const value = getCount();  // no payload when P is void/undefined
 console.log(value); // 5
 ```
 
@@ -152,7 +159,8 @@ console.log(value); // 5
 Plugins hook into the action lifecycle for cross-cutting concerns. Plugins are global and can be added/removed at runtime.
 
 ```typescript
-import { Plugin, action, addPlugin, removePlugin, getPlugins, clearPlugins, createStore } from '@relax-state/core';
+import { Plugin, action, addPlugin, removePlugin, getPlugins, clearPlugins } from '@relax-state/core';
+import { createStore } from '@relax-state/store';
 
 const store = createStore();
 
@@ -184,14 +192,9 @@ removePlugin('logger');
 // Clear all plugins
 clearPlugins();
 
-// Use plugins at action level
-const myAction = action(
-  (store, payload) => { /* ... */ },
-  { name: 'myAction', plugins: [specificPlugin] }
-);
-
-// Call action directly - both global and action plugins will be called
-myAction(store, payload);
+// Define an action; global plugins run on every call
+const myAction = action((payload: unknown, store) => { /* ... */ }, { name: 'myAction' });
+myAction(payload);
 ```
 
 ## API Reference

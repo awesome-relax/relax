@@ -1,0 +1,52 @@
+{
+  "changesets": [
+    {
+      "releases": [
+        {
+          "name": "@relax-state/core",
+          "type": "patch"
+        },
+        {
+          "name": "@relax-state/react",
+          "type": "patch"
+        }
+      ],
+      "summary": "chore: release 0.0.9",
+      "id": "core-react-0-0-9"
+    }
+  ],
+  "releases": [
+    {
+      "name": "@relax-state/core",
+      "type": "patch",
+      "oldVersion": "0.0.8",
+      "changesets": [
+        "core-react-0-0-9"
+      ],
+      "newVersion": "0.0.9"
+    },
+    {
+      "name": "@relax-state/react",
+      "type": "patch",
+      "oldVersion": "0.0.8",
+      "changesets": [
+        "core-react-0-0-9"
+      ],
+      "newVersion": "0.0.9"
+    },
+    {
+      "name": "@relax/demos",
+      "type": "patch",
+      "oldVersion": "0.0.7",
+      "changesets": [],
+      "newVersion": "0.0.8"
+    },
+    {
+      "name": "@relax-state/store",
+      "type": "patch",
+      "oldVersion": "0.0.1",
+      "changesets": [],
+      "newVersion": "0.0.2"
+    }
+  ]
+}

@@ -1,5 +1,14 @@
 # @relax-state/react
 
+## 0.0.9
+
+### Patch Changes
+
+- chore: release 0.0.9
+- Updated dependencies
+  - @relax-state/core@0.0.9
+  - @relax-state/store@0.0.2
+
 ## 0.0.8
 
 ### Patch Changes

@@ -1,7 +1,7 @@
 {
-  "name": "@relax-state/core",
-  "version": "0.0.9",
-  "description": "relax-state core",
+  "name": "@relax-state/store",
+  "version": "0.0.2",
+  "description": "relax-state store",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "module": "./src/index.ts",
@@ -25,10 +25,10 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "@relax-state/core": "workspace:*"
+  },
   "devDependencies": {
     "vitest": "^1.6.0"
-  },
-  "dependencies": {
-    "@relax-state/store": "workspace:*"
   }
 }

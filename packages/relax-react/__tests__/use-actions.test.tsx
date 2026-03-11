@@ -1,4 +1,5 @@
-import { action, createStore } from '@relax-state/core';
+import { action } from '@relax-state/core';
+import { createStore } from '@relax-state/store';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { useActions } from '../src/hooks';

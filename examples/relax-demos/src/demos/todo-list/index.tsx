@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './index.scss';
-import { action, addPlugin, computed, createStore, type Plugin, state } from '@relax-state/core';
-import { useRelaxValue } from '@relax-state/react';
+import { action, addPlugin, computed, type Plugin, state } from '@relax-state/core';
+import { useActions, useRelaxValue } from '@relax-state/react';
 import { useTranslation } from '../../i18n/useTranslation';
 
 interface Todo {
@@ -22,8 +22,6 @@ const loggerPlugin: Plugin = {
 };
 
 addPlugin(loggerPlugin);
-
-const todoStore = createStore();
 
 // 状态定义
 const todoListAtom = state<Todo[]>([]);
@@ -79,27 +77,24 @@ export const TodoList = () => {
   const completedCount = useRelaxValue(completedCountSelector);
   const pendingCount = useRelaxValue(pendingCountSelector);
   const [inputValue, setInputValue] = useState('');
+  const [addTodo, toggleTodo, removeTodo] = useActions([
+    addTodoAction,
+    toggleTodoAction,
+    removeTodoAction,
+  ]);
 
-  const addTodo = () => {
+  const onAddTodo = () => {
     if (!inputValue.trim()) {
       return;
     }
 
-    addTodoAction(todoStore, { text: inputValue.trim() });
+    addTodo({ text: inputValue.trim() });
     setInputValue('');
-  };
-
-  const toggleTodo = (id: string) => {
-    toggleTodoAction(todoStore, { id });
-  };
-
-  const removeTodo = (id: string) => {
-    removeTodoAction(todoStore, { id });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      addTodo();
+      onAddTodo();
     }
   };
 
@@ -119,7 +114,12 @@ export const TodoList = () => {
           onKeyDown={handleKeyDown}
           placeholder={t('inputPlaceholder')}
         />
-        <button type="button" className="addButton" onClick={addTodo} disabled={!inputValue.trim()}>
+        <button
+          type="button"
+          className="addButton"
+          onClick={onAddTodo}
+          disabled={!inputValue.trim()}
+        >
           {t('addButton')}
         </button>
       </div>
@@ -139,7 +139,7 @@ export const TodoList = () => {
                   <button
                     type="button"
                     className="todoCheckbox"
-                    onClick={() => toggleTodo(todo.id)}
+                    onClick={() => toggleTodo({ id: todo.id })}
                     aria-label={todo.completed ? t('markIncomplete') : t('markCompleted')}
                   >
                     {todo.completed && <span className="checkmark">✓</span>}
@@ -147,7 +147,7 @@ export const TodoList = () => {
                   <button
                     type="button"
                     className="todoText"
-                    onClick={() => toggleTodo(todo.id)}
+                    onClick={() => toggleTodo({ id: todo.id })}
                     aria-label={todo.completed ? t('markIncomplete') : t('markCompleted')}
                   >
                     {todo.text}
@@ -156,7 +156,7 @@ export const TodoList = () => {
                 <button
                   type="button"
                   className="deleteButton"
-                  onClick={() => removeTodo(todo.id)}
+                  onClick={() => removeTodo({ id: todo.id })}
                   aria-label={t('deleteTask')}
                 >
                   ×

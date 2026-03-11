@@ -1,8 +1,10 @@
+import { createStore } from '@relax-state/store';
 import { describe, expect, it } from 'vitest';
-import { computed, DefultStore, state } from '../src/index';
+import { computed, state } from '../src/index';
 
 describe('computed', () => {
   it('should compute derived value and react to dependency changes', async () => {
+    const store = createStore();
     const a = state<number>(1);
     const b = state<number>(2);
 
@@ -11,6 +13,6 @@ describe('computed', () => {
     });
 
     await Promise.resolve();
-    expect(DefultStore.get(sum)).toBe(3);
+    expect(store.get(sum)).toBe(3);
   });
 });

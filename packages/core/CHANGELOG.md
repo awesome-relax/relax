@@ -1,5 +1,31 @@
 # @relax-state/core
 
+## 0.0.9
+
+### Patch Changes
+
+- chore: release 0.0.9
+  - @relax-state/store@0.0.2
+
+## Unreleased
+
+### Breaking Changes
+
+- **Store exports removed**: `createStore` and `Store` are no longer exported from @relax-state/core. Import them from `@relax-state/store` instead.
+
+  Migration:
+
+  ```typescript
+  // Before
+  import { createStore, state } from "@relax-state/core";
+
+  // After
+  import { state } from "@relax-state/core";
+  import { createStore } from "@relax-state/store";
+  ```
+
+  Install: `pnpm add @relax-state/store`
+
 ## 0.0.8
 
 ### Patch Changes

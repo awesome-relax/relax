@@ -9,3 +9,6 @@ coverage
 .env.test.local
 .env.production.local
 .claude
+docs/plans
+.pnpm-store
+.worktrees

@@ -9,21 +9,21 @@
  *   store.set(countState, current + payload.delta);
  * }, { name: 'increment' });
  *
- * // Call directly
- * increment(store, { delta: 5 });
+ * // Call directly (store is injected by the runtime)
+ * increment({ delta: 5 });
  * ```
  */
 
+import { getRuntimeStore, type Store } from '@relax-state/store';
 import { type ActionContext, getPlugins, type Plugin } from './plugin';
-import type { Store } from './store';
 
 /**
  * Action handler function type
  * @template P - Payload type
  * @template R - Return type
  * @template S - Store type (defaults to Store)
- * @param store - The store instance to interact with state
- * @param payload - The payload passed when dispatching the action
+ * @param store - The store instance (injected by the runtime)
+ * @param payload - The payload (optional when P is void or optional)
  * @returns The result of the action execution
  * @example
  * ```typescript
@@ -32,7 +32,7 @@ import type { Store } from './store';
  * };
  * ```
  */
-export type ActionHandler<P, R, S extends Store = Store> = (store: S, payload: P) => R;
+export type ActionHandler<P, R, S extends Store = Store> = (store: S, payload?: P) => R;
 
 /**
  * Action interface
@@ -46,24 +46,22 @@ export type ActionHandler<P, R, S extends Store = Store> = (store: S, payload: P
  * }, { name: 'getUser' });
  *
  * // Call directly
- * const user = myAction(store, { id: '123' });
+ * const user = myAction({ id: '123' });
  * ```
  */
-export interface Action<P = any, R = any> {
+/**
+ * - When P is undefined | void: no args, action().
+ * - When undefined extends P (optional payload): action(payload?) optional param.
+ * - Otherwise: action(payload) required.
+ */
+export type Action<P = any, R = any> = {
   /** Optional readable name for debugging and logging */
   name?: string;
-
-  /** Optional plugins specific to this action for custom behavior */
-  plugins?: Plugin[];
-
-  /**
-   * Call the action directly
-   * @param store - The store instance
-   * @param payload - The payload to pass to the handler
-   * @returns The result from the action handler
-   */
-  (store: Store, payload: P): R;
-}
+} & ([P] extends [undefined | void]
+  ? () => R
+  : undefined extends P
+    ? (payload?: P) => R
+    : (payload: P) => R);
 
 /**
  * Action options for creating actions
@@ -71,7 +69,7 @@ export interface Action<P = any, R = any> {
  * @example
  * ```typescript
  * const myAction = action(
- *   (store, id: string) => store.get(userState),
+ *   (store, payload: string) => store.get(userState),
  *   { name: 'Fetch User Action', plugins: [loggerPlugin] }
  * );
  * ```
@@ -79,17 +77,14 @@ export interface Action<P = any, R = any> {
 export interface ActionOptions {
   /** Optional readable name for the action */
   name?: string;
-
-  /** Optional plugins specific to this action */
-  plugins?: Plugin[];
 }
 
 /**
  * Creates a new Action
  * Actions are callable objects that encapsulate business logic with plugin support.
- * They can be invoked directly like: action(store, payload)
+ * They can be invoked directly like: action(payload). The store is injected by the runtime.
  *
- * @param handler - Action handler function that implements the business logic
+ * @param handler - Action handler (store, payload) => result
  * @param options - Optional action configuration (name, plugins)
  * @returns Callable Action object
  *
@@ -119,9 +114,13 @@ export interface ActionOptions {
  *   }
  * );
  *
- * // Call directly (no dispatch needed)
- * increment(store, { amount: 5 });
- * const user = await fetchUser(store, '123');
+ * // Call directly (store injected by runtime)
+ * increment({ amount: 5 });
+ * const user = await fetchUser('123');
+ *
+ * // No-payload (P is void | undefined): call with no args
+ * const refresh = action((store) => { store.set(count, 0); }, { name: 'refresh' });
+ * refresh();
  * ```
  */
 export const action = <P, R>(
@@ -129,13 +128,13 @@ export const action = <P, R>(
   options?: ActionOptions
 ): Action<P, R> => {
   const name = options?.name;
-  const actionPlugins = options?.plugins || [];
 
-  // Create the callable function
-  const actionFn = (store: Store, payload: P): R => {
+  // Create the callable function (payload optional when P is undefined)
+  const actionFn = (payload?: P): R => {
+    const store = getRuntimeStore();
     // Get global plugins
     const globalPlugins = getPlugins();
-    const allPlugins: Plugin[] = [...globalPlugins, ...actionPlugins];
+    const allPlugins: Plugin[] = [...globalPlugins];
 
     const context: ActionContext<P, R> = { name, type: actionFn, payload };
 
@@ -171,11 +170,6 @@ export const action = <P, R>(
 
   // Use Object.defineProperty to attach metadata
   Object.defineProperty(actionFn, 'name', { value: name, writable: false, configurable: false });
-  Object.defineProperty(actionFn, 'plugins', {
-    value: actionPlugins,
-    writable: false,
-    configurable: false,
-  });
 
   return actionFn as Action<P, R>;
 };

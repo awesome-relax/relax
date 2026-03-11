@@ -1,4 +1,4 @@
-import { type SpawnSyncOptions, spawnSync } from 'child_process';
+import { type SpawnSyncOptions, spawnSync } from 'node:child_process';
 
 type RunOptions = SpawnSyncOptions & { allowFail?: boolean };
 
