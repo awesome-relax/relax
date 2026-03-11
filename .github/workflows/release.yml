@@ -1,12 +1,14 @@
 name: Release
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["CI"]
+    branches: [main]
+    types:
+      - completed
   workflow_dispatch:
 
-concurrency: release-${{ github.ref }}
+concurrency: release-${{ github.event.workflow_run.head_branch || github.ref_name }}
 
 permissions:
   contents: write
@@ -14,9 +16,18 @@ permissions:
 
 jobs:
   release:
+    if: ${{ github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main') }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout (workflow_run)
+        if: ${{ github.event_name == 'workflow_run' }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Checkout (manual)
+        if: ${{ github.event_name != 'workflow_run' }}
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
