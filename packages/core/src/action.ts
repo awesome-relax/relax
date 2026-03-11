@@ -32,7 +32,13 @@ import { type ActionContext, getPlugins, type Plugin } from './plugin';
  * };
  * ```
  */
-export type ActionHandler<P, R, S extends Store = Store> = (store: S, payload?: P) => R;
+export type ActionHandler<P, R, S extends Store = Store> = IsAny<P> extends true
+  ? (store: S, payload?: P) => R
+  : [P] extends [undefined | void]
+    ? (store: S) => R
+    : undefined extends P
+      ? (store: S, payload?: P) => R
+      : (store: S, payload: P) => R;
 
 /**
  * Action interface
@@ -127,10 +133,19 @@ export interface ActionOptions {
  * refresh();
  * ```
  */
-export const action = <P, R>(
+export function action<R>(handler: (store: Store) => R, options?: ActionOptions): Action<void, R>;
+export function action<P, R>(
+  handler: (store: Store, payload: P) => R,
+  options?: ActionOptions
+): Action<P, R>;
+export function action<P, R>(
+  handler: (store: Store, payload?: P) => R,
+  options?: ActionOptions
+): Action<P | undefined, R>;
+export function action<P, R>(
   handler: ActionHandler<P, R>,
   options?: ActionOptions
-): Action<P, R> => {
+): Action<P, R> {
   const name = options?.name;
 
   // Create the callable function (payload optional when P is undefined)
@@ -176,4 +191,4 @@ export const action = <P, R>(
   Object.defineProperty(actionFn, 'name', { value: name, writable: false, configurable: false });
 
   return actionFn as Action<P, R>;
-};
+}
