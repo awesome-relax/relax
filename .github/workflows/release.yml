@@ -41,8 +41,31 @@ jobs:
         uses: changesets/action@v1
         with:
           version: pnpm changeset:version
-          publish: pnpm -w run build && pnpm changeset:publish
-          createGithubReleases: true
+          publish: pnpm -w run build && pnpm changeset:publish --no-git-tag
+          createGithubReleases: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Configure git
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Create aggregate release tag
+        if: steps.changesets.outputs.published == 'true'
+        id: release_tag
+        run: |
+          TAG="release-$(date -u +%Y%m%d-%H%M)"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
+
+      - name: Create GitHub Release
+        if: steps.changesets.outputs.published == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release_tag.outputs.tag }}
+          name: ${{ steps.release_tag.outputs.tag }}
+          generate_release_notes: true
