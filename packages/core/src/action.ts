@@ -54,14 +54,18 @@ export type ActionHandler<P, R, S extends Store = Store> = (store: S, payload?: 
  * - When undefined extends P (optional payload): action(payload?) optional param.
  * - Otherwise: action(payload) required.
  */
+type IsAny<T> = 0 extends (1 & T) ? true : false;
+
 export type Action<P = any, R = any> = {
   /** Optional readable name for debugging and logging */
   name?: string;
-} & ([P] extends [undefined | void]
-  ? () => R
-  : undefined extends P
-    ? (payload?: P) => R
-    : (payload: P) => R);
+} & (IsAny<P> extends true
+  ? (payload?: P) => R
+  : [P] extends [undefined | void]
+    ? () => R
+    : undefined extends P
+      ? (payload?: P) => R
+      : (payload: P) => R);
 
 /**
  * Action options for creating actions
