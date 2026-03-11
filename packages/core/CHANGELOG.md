@@ -1,5 +1,14 @@
 # @relax-state/core
 
+## 0.0.10
+
+### Patch Changes
+
+- [#11](https://github.com/awesome-relax/relax/pull/11) [`0025a7d`](https://github.com/awesome-relax/relax/commit/0025a7da3474ba2cdbb6b262cf5fe952377ffe5e) Thanks [@pallyoung](https://github.com/pallyoung)! - Fix action payload typing and preserve useActions signatures.
+
+- Updated dependencies []:
+  - @relax-state/store@0.0.3
+
 ## 0.0.9
 
 ### Patch Changes
