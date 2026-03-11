@@ -3,8 +3,8 @@
  * Provides reactive integration between Relax state and React components
  */
 
-import { type State, type Value } from '@relax-state/core';
-import { resetRuntimeStore, setRuntimeStore, type Store } from '@relax-state/store';
+import type { State, Value } from '@relax-state/core';
+import { resetRuntimeStore, type Store, setRuntimeStore } from '@relax-state/store';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRelaxStore } from '../provider';
 
@@ -57,7 +57,7 @@ export const useRelaxState = <T>(state: State<T>): readonly [T, (value: T) => vo
   return [value, setState] as const;
 };
 
-type AnyFn = (...args: any[]) => any;
+type AnyFn = (...args: unknown[]) => unknown;
 
 type BoundAction<TAction> = TAction extends AnyFn
   ? (...args: Parameters<TAction>) => ReturnType<TAction>
@@ -92,10 +92,8 @@ export const useActions = <const P extends readonly AnyFn[]>(
   actions: EnsureTuple<P> & P
 ): BoundActions<P> => {
   const store = useRelaxStore();
-  //
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   return useMemo(
     () => actions.map((action) => bindAction(store, action)) as BoundActions<P>,
-    [...actions, store]
+    [...actions, store, actions.map]
   );
 };

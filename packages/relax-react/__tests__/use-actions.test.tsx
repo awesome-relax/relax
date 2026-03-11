@@ -8,14 +8,14 @@ describe('useActions', () => {
   it('should preserve action types in tuple', () => {
     const _store = createStore();
 
-    const addAction = action<{text: string}, { id: string; text: string }>(
-      (_s, payload={text: ''}) => {
+    const addAction = action<{ text: string }, { id: string; text: string }>(
+      (_s, payload = { text: '' }) => {
         return { id: '1', ...payload, completed: false };
       },
       { name: 'add' }
     );
 
-    const toggleAction = action<{id: string}, void>(
+    const toggleAction = action<{ id: string }, void>(
       (_s, _payload) => {
         // no return
       },
@@ -39,12 +39,11 @@ describe('useActions', () => {
     const _store = createStore();
 
     const noPayloadAction = action((_s) => 'ok', { name: 'noop' });
-    const optionalPayloadAction = action(
-      (_s, payload?: { id: string }) => payload?.id ?? 'none',
-      { name: 'maybe' }
-    );
+    const optionalPayloadAction = action((_s, payload?: { id: string }) => payload?.id ?? 'none', {
+      name: 'maybe',
+    });
     const requiredPayloadAction = action<{ count: number }, number>(
-      (_s, payload) => payload?.count??0 + 1,
+      (_s, payload) => (payload?.count ?? 0) + 1,
       { name: 'required' }
     );
 

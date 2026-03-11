@@ -34,7 +34,7 @@ import { type ActionContext, getPlugins, type Plugin } from './plugin';
  */
 export type ActionHandler<P, R, S extends Store = Store> = IsAny<P> extends true
   ? (store: S, payload?: P) => R
-  : [P] extends [undefined | void]
+  : [P] extends [undefined]
     ? (store: S) => R
     : undefined extends P
       ? (store: S, payload?: P) => R
@@ -60,14 +60,15 @@ export type ActionHandler<P, R, S extends Store = Store> = IsAny<P> extends true
  * - When undefined extends P (optional payload): action(payload?) optional param.
  * - Otherwise: action(payload) required.
  */
-type IsAny<T> = 0 extends (1 & T) ? true : false;
+type IsAny<T> = 0 extends 1 & T ? true : false;
 
+// biome-ignore lint/suspicious/noExplicitAny: default any preserves backwards-compatible untyped actions.
 export type Action<P = any, R = any> = {
   /** Optional readable name for debugging and logging */
   name?: string;
 } & (IsAny<P> extends true
   ? (payload?: P) => R
-  : [P] extends [undefined | void]
+  : [P] extends [undefined]
     ? () => R
     : undefined extends P
       ? (payload?: P) => R
@@ -142,10 +143,7 @@ export function action<P, R>(
   handler: (store: Store, payload?: P) => R,
   options?: ActionOptions
 ): Action<P | undefined, R>;
-export function action<P, R>(
-  handler: ActionHandler<P, R>,
-  options?: ActionOptions
-): Action<P, R> {
+export function action<P, R>(handler: ActionHandler<P, R>, options?: ActionOptions): Action<P, R> {
   const name = options?.name;
 
   // Create the callable function (payload optional when P is undefined)
