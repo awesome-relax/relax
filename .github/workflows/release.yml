@@ -41,7 +41,7 @@ jobs:
         uses: changesets/action@v1
         with:
           version: pnpm changeset:version
-          publish: pnpm -w run build && pnpm changeset:publish --no-git-tag
+          publish: pnpm -w run release:publish
           createGithubReleases: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
