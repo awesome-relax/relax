@@ -10,6 +10,7 @@
     "demos": "pnpm --filter @relax/demos run dev",
     "build": "rts scripts/build.ts",
     "release": "rts scripts/release.ts",
+    "release:publish": "pnpm -w run build && pnpm changeset:publish --no-git-tag",
     "changeset": "pnpm -w exec changeset",
     "changeset:version": "pnpm -w exec changeset version",
     "changeset:publish": "pnpm -w exec changeset publish"
